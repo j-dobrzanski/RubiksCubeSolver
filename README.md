@@ -1,0 +1,2 @@
+# RubiksCubeSolver
+Engineer's thesis
