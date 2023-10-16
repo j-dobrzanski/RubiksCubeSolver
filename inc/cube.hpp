@@ -1,10 +1,10 @@
 #ifndef CUBE_HPP
 #define CUBE_HPP
 
-#include "cube_tile.hpp"
-#include <vector>
 
-typedef std::vector<std::vector<CubeTile>> Side;
+#include "cube_tile.hpp"
+#include <cstdint>
+#include <vector>
 
 enum class Axis {
     X,
@@ -12,25 +12,25 @@ enum class Axis {
     Z
 };
 
-class Cube{
+enum class CubeType {
+    BASIC,
+    PICTURE
+};
+
+class Cube {
     public:
+
         uint8_t size;
         std::vector<std::vector<CubeTile*>*>* side_front;
         std::vector<std::vector<CubeTile*>*>* side_back;
         std::vector<std::vector<CubeTile*>*>* side_left;
         std::vector<std::vector<CubeTile*>*>* side_right;
-        std::vector<std::vector<CubeTile*>*>* side_top;
-        std::vector<std::vector<CubeTile*>*>* side_bottom;
+        std::vector<std::vector<CubeTile*>*>* side_up;
+        std::vector<std::vector<CubeTile*>*>* side_down;
 
-        Cube(uint8_t size){
-            std::vector<int> super;
-        }
-        int rotate(Axis axis, uint8_t tile_index);
+        int rotate();
         int check_solution();
-
-    private:
-        std::vector<std::vector<CubeTile*>*>* initialize_side(side side);
-        
 };
+
 
 #endif
