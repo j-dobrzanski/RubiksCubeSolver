@@ -7,15 +7,35 @@ static inline int check_solution_side(Side current_side_enum, std::vector<std::v
 static inline int rotate_side(std::vector<std::vector<BasicCubeTile*>*>** side_p, uint8_t size, bool clockwise);
 static inline void delete_side(std::vector<std::vector<BasicCubeTile*>*>* side, uint8_t size);
 static inline int compare_side(std::vector<std::vector<BasicCubeTile*>*>* side_a, std::vector<std::vector<BasicCubeTile*>*>* side_b, uint8_t size);
+static inline std::vector<std::vector<BasicCubeTile*>*>* copy_side(std::vector<std::vector<BasicCubeTile*>*>* side, uint8_t size);
+
 
 BasicCube::BasicCube(uint8_t size){
     BasicCube::size = size;
-    side_front = initialize_side(Side::Front);
-    side_back = initialize_side(Side::Back);
-    side_left = initialize_side(Side::Left);
-    side_right = initialize_side(Side::Right);
-    side_up = initialize_side(Side::Up);
-    side_down = initialize_side(Side::Down);
+    BasicCube::side_front = initialize_side(Side::Front);
+    BasicCube::side_back = initialize_side(Side::Back);
+    BasicCube::side_left = initialize_side(Side::Left);
+    BasicCube::side_right = initialize_side(Side::Right);
+    BasicCube::side_up = initialize_side(Side::Up);
+    BasicCube::side_down = initialize_side(Side::Down);
+    BasicCube::solution_path = new std::vector<Move*>;
+    this->solution_length = 0;
+}
+
+BasicCube::BasicCube(BasicCube* cube){
+    this->size = cube->size;
+    this->solution_path = new std::vector<Move*>;
+    for(auto move : *cube->solution_path){
+        this->solution_path->push_back(new Move(move));
+    }
+    this->side_front = copy_side(cube->side_front, cube->size);
+    this->side_back = copy_side(cube->side_back, cube->size);
+    this->side_left = copy_side(cube->side_left, cube->size);
+    this->side_right = copy_side(cube->side_right, cube->size);
+    this->side_up = copy_side(cube->side_up, cube->size);
+    this->side_down = copy_side(cube->side_down, cube->size);
+    this->solution_length = cube->solution_length;
+
 }
 
 std::vector<std::vector<BasicCubeTile*>*>* BasicCube::initialize_side(Side side){
@@ -131,7 +151,7 @@ int BasicCube::rotate_up(uint8_t tile_index, bool clockwise){
 int BasicCube::rotate_down(uint8_t tile_index, bool clockwise){
     // return rotate_up(BasicCube::size - 1 - tile_index, !clockwise);
     if(tile_index == 0){
-        rotate_side(&(BasicCube::side_down), BasicCube::size, clockwise);
+        rotate_side(&(BasicCube::side_down), BasicCube::size, !clockwise);
     }
     else if(tile_index == BasicCube::size - 1){
         rotate_side(&(BasicCube::side_up), BasicCube::size, !clockwise);
@@ -261,6 +281,45 @@ int BasicCube::compare_cube(BasicCube* cube){
     return 0;
 }
 
+int BasicCube::rotate(Move* move){
+    this->solution_length++;
+    BasicCube::solution_path->push_back(new Move(move));
+    switch(move->side){
+        case Side::Back:
+            return BasicCube::rotate_back(move->tile_index, move->clockwise);
+        case Side::Front:
+            return BasicCube::rotate_front(move->tile_index, move->clockwise);
+        case Side::Down:
+            return BasicCube::rotate_down(move->tile_index, move->clockwise);
+        case Side::Up:
+            return BasicCube::rotate_up(move->tile_index, move->clockwise);
+        case Side::Left:
+            return BasicCube::rotate_left(move->tile_index, move->clockwise);
+        case Side::Right:
+            return BasicCube::rotate_right(move->tile_index, move->clockwise);
+        default:
+            return -1;
+    }
+}
+
+int BasicCube::clear_solution_path(){
+    for(auto move : *BasicCube::solution_path){
+        delete move;
+    }
+    delete BasicCube::solution_path;
+    BasicCube::solution_path = new std::vector<Move*>;
+    this->solution_length = 0;
+    return 0;
+}
+
+int BasicCube::print_solution_path(){
+    for(auto move : *this->solution_path){
+        std::cout << move->to_string() << " ";
+    }
+    std::cout << std::endl;
+    return 0;
+}
+
 BasicCube::~BasicCube(){
     delete_side(BasicCube::side_front, BasicCube::size);
     delete_side(BasicCube::side_back, BasicCube::size);
@@ -268,6 +327,10 @@ BasicCube::~BasicCube(){
     delete_side(BasicCube::side_right, BasicCube::size);
     delete_side(BasicCube::side_up, BasicCube::size);
     delete_side(BasicCube::side_down, BasicCube::size);
+    for(auto move : *BasicCube::solution_path){
+        delete move;
+    }
+    delete solution_path;
 }
 
 static inline int check_solution_side(Side current_side_enum, std::vector<std::vector<BasicCubeTile*>*>* current_side, uint8_t cube_size){
@@ -329,5 +392,16 @@ static inline int compare_side(std::vector<std::vector<BasicCubeTile*>*>* side_a
         }
     }
     return 0;
+}
+
+static inline std::vector<std::vector<BasicCubeTile*>*>* copy_side(std::vector<std::vector<BasicCubeTile*>*>* side, uint8_t size){
+    std::vector<std::vector<BasicCubeTile*>*>* new_side = new std::vector<std::vector<BasicCubeTile*>*>();
+    for(uint8_t i = 0; i < size; i++){
+        new_side->push_back(new std::vector<BasicCubeTile*>());
+        for(uint8_t j = 0; j < size; j++){
+            (*(*new_side)[i]).push_back(new BasicCubeTile((*(*side)[i])[j]->side_destination));
+        }
+    }
+    return new_side;
 }
 

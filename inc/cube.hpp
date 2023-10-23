@@ -1,16 +1,10 @@
 #ifndef CUBE_HPP
 #define CUBE_HPP
 
-
+#include "move.hpp"
 #include "cube_tile.hpp"
 #include <cstdint>
 #include <vector>
-
-enum class Axis {
-    X,
-    Y,
-    Z
-};
 
 enum class CubeType {
     BASIC,

@@ -25,7 +25,7 @@ polygon mesh for 3x3x3:
 
 class BasicCube : Cube{
     public:
-        // uint8_t size;
+        uint8_t size;
         std::vector<std::vector<BasicCubeTile*>*>* side_front;
         std::vector<std::vector<BasicCubeTile*>*>* side_back;
         std::vector<std::vector<BasicCubeTile*>*>* side_left;
@@ -33,10 +33,17 @@ class BasicCube : Cube{
         std::vector<std::vector<BasicCubeTile*>*>* side_up;
         std::vector<std::vector<BasicCubeTile*>*>* side_down;
 
+        std::vector<Move*>* solution_path;
+        uint64_t solution_length;
+
         BasicCube(uint8_t size);
-        int rotate(Axis axis, uint8_t tile_index, bool clockwise);
+        BasicCube(BasicCube* cube);
+        int clear_solution_path();
+        int print_solution_path();
+
         int check_solution();
         void print_cube();
+        int rotate(Move* move);
         int rotate_left(uint8_t tile_index, bool clockwise);
         int rotate_right(uint8_t tile_index, bool clockwise);
         int rotate_front(uint8_t tile_index, bool clockwise);
