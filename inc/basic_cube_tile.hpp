@@ -9,6 +9,8 @@ class BasicCubeTile : CubeTile {
         Side side_destination;
 
         BasicCubeTile(Side side_destination);
+
+        BasicCubeTile();
 };
 
 #endif

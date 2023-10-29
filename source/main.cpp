@@ -2,8 +2,10 @@
 #include <iostream>
 #include "../inc/thistlethwaite.hpp"
 
+static void inline print_move(Move* move);
+
 int main(){
-    auto cube = new BasicCube(3);
+    auto cube = new BasicCube();
     std::cout << sizeof(*cube) << std::endl; 
     cube->print_cube();
 
@@ -11,16 +13,21 @@ int main(){
 
     Move* move = new Move(Side::Up, 0, true, false);
     cube->rotate(move);
+    // print_move(move);
     delete move;
 
+    // cube->print_cube();
 
     move = new Move(Side::Right, 0, true, false);
     cube->rotate(move);
+    // print_move(move);
     delete move;
 
+    // cube->print_cube();
 
     move = new Move(Side::Up, 0, true, false);
     cube->rotate(move);
+    // print_move(move);
     delete move;
 
     // cube->print_cube();
@@ -28,6 +35,7 @@ int main(){
     move = new Move(Side::Down, 0, true, false);
     cube->rotate(move);
     delete move;
+
 
     cube->print_cube();
     cube->clear_solution_path();
@@ -41,4 +49,8 @@ int main(){
     delete thistlethwaite;
     delete cube;
     return 0;
+}
+
+static void inline print_move(Move* move){
+    std::cout << move->to_string() << std::endl;
 }

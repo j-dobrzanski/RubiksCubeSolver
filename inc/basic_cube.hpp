@@ -6,6 +6,10 @@
 #include <cstdint>
 #include <vector>
 
+#include <array>
+
+#define CUBE_SIZE 3
+
 // typedef std::vector<std::vector<CubeTile>> Side;
 
 /*
@@ -25,18 +29,17 @@ polygon mesh for 3x3x3:
 
 class BasicCube : Cube{
     public:
-        uint8_t size;
-        std::vector<std::vector<BasicCubeTile*>*>* side_front;
-        std::vector<std::vector<BasicCubeTile*>*>* side_back;
-        std::vector<std::vector<BasicCubeTile*>*>* side_left;
-        std::vector<std::vector<BasicCubeTile*>*>* side_right;
-        std::vector<std::vector<BasicCubeTile*>*>* side_up;
-        std::vector<std::vector<BasicCubeTile*>*>* side_down;
+        std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* side_front;
+        std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* side_back;
+        std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* side_left;
+        std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* side_right;
+        std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* side_up;
+        std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* side_down;
 
         std::vector<Move*>* solution_path;
         uint64_t solution_length;
 
-        BasicCube(uint8_t size);
+        BasicCube();
         BasicCube(BasicCube* cube);
         int clear_solution_path();
         int print_solution_path();
@@ -55,7 +58,7 @@ class BasicCube : Cube{
         ~BasicCube();
 
     private:
-        std::vector<std::vector<BasicCubeTile*>*>* initialize_side(Side side);
+        std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* initialize_side(Side side);
         int check_solution_basic();
         int check_solution_picture();
         

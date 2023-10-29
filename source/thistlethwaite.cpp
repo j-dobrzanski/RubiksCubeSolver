@@ -6,6 +6,8 @@
 
 static inline std::map<std::pair<Side,Side>, bool>* initialize_phase1_map();
 
+static inline bool check_move_sanity(Move* last_move, Move* new_move);
+
 Thistlethwaite::Thistlethwaite(BasicCube* cube){
     Thistlethwaite::start_cube = cube;
 
@@ -122,8 +124,8 @@ int Thistlethwaite::phase1_check(BasicCube* cube){
     // std::cout << "Found: " << std::endl;
 
     // check fu
-    Side side1 = (*(*cube->side_front)[0])[1]->side_destination;
-    Side side2 = (*(*cube->side_up)[cube->size-1])[1]->side_destination;
+    Side side1 = (*cube->side_front)[0][1].side_destination;
+    Side side2 = (*cube->side_up)[CUBE_SIZE-1][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 1" << std::endl;
@@ -131,8 +133,8 @@ int Thistlethwaite::phase1_check(BasicCube* cube){
     }
 
     // check fr
-    side1 = (*(*cube->side_front)[1])[cube->size-1]->side_destination;
-    side2 = (*(*cube->side_right)[1])[0]->side_destination;
+    side1 = (*cube->side_front)[1][CUBE_SIZE-1].side_destination;
+    side2 = (*cube->side_right)[1][0].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 2" << std::endl;
@@ -140,8 +142,8 @@ int Thistlethwaite::phase1_check(BasicCube* cube){
     }
 
     // check fd
-    side1 = (*(*cube->side_front)[cube->size-1])[1]->side_destination;
-    side2 = (*(*cube->side_down)[cube->size-1])[1]->side_destination;
+    side1 = (*cube->side_front)[CUBE_SIZE-1][1].side_destination;
+    side2 = (*cube->side_down)[CUBE_SIZE-1][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 3" << std::endl;
@@ -149,8 +151,8 @@ int Thistlethwaite::phase1_check(BasicCube* cube){
     }
 
     // check fl
-    side1 = (*(*cube->side_front)[1])[0]->side_destination;
-    side2 = (*(*cube->side_left)[1])[cube->size-1]->side_destination;
+    side1 = (*cube->side_front)[1][0].side_destination;
+    side2 = (*cube->side_left)[1][CUBE_SIZE-1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 4" << std::endl;
@@ -159,8 +161,8 @@ int Thistlethwaite::phase1_check(BasicCube* cube){
 
 
     // check bu
-    side1 = (*(*cube->side_back)[0])[1]->side_destination;
-    side2 = (*(*cube->side_up)[0])[1]->side_destination;
+    side1 = (*cube->side_back)[0][1].side_destination;
+    side2 = (*cube->side_up)[0][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 5" << std::endl;
@@ -168,8 +170,8 @@ int Thistlethwaite::phase1_check(BasicCube* cube){
     }
 
     // check br
-    side1 = (*(*cube->side_back)[1])[0]->side_destination;
-    side2 = (*(*cube->side_right)[1])[cube->size-1]->side_destination;
+    side1 = (*cube->side_back)[1][0].side_destination;
+    side2 = (*cube->side_right)[1][CUBE_SIZE-1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 6" << std::endl;
@@ -177,8 +179,8 @@ int Thistlethwaite::phase1_check(BasicCube* cube){
     }
 
     // check bd
-    side1 = (*(*cube->side_back)[cube->size-1])[1]->side_destination;
-    side2 = (*(*cube->side_down)[0])[1]->side_destination;
+    side1 = (*cube->side_back)[CUBE_SIZE-1][1].side_destination;
+    side2 = (*cube->side_down)[0][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 7" << std::endl;
@@ -186,8 +188,8 @@ int Thistlethwaite::phase1_check(BasicCube* cube){
     }
 
     // check bl
-    side1 = (*(*cube->side_back)[1])[cube->size-1]->side_destination;
-    side2 = (*(*cube->side_left)[1])[0]->side_destination;
+    side1 = (*cube->side_back)[1][CUBE_SIZE-1].side_destination;
+    side2 = (*cube->side_left)[1][0].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 8" << std::endl;
@@ -196,8 +198,8 @@ int Thistlethwaite::phase1_check(BasicCube* cube){
 
 
     // check ul
-    side1 = (*(*cube->side_up)[1])[0]->side_destination;
-    side2 = (*(*cube->side_left)[0])[1]->side_destination;
+    side1 = (*cube->side_up)[1][0].side_destination;
+    side2 = (*cube->side_left)[0][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 9" << std::endl;
@@ -205,8 +207,8 @@ int Thistlethwaite::phase1_check(BasicCube* cube){
     }
 
     // check ur
-    side1 = (*(*cube->side_up)[1])[cube->size-1]->side_destination;
-    side2 = (*(*cube->side_right)[0])[1]->side_destination;
+    side1 = (*cube->side_up)[1][CUBE_SIZE-1].side_destination;
+    side2 = (*cube->side_right)[0][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 10" << std::endl;
@@ -215,8 +217,8 @@ int Thistlethwaite::phase1_check(BasicCube* cube){
 
 
     // check dl
-    side1 = (*(*cube->side_down)[1])[0]->side_destination;
-    side2 = (*(*cube->side_left)[cube->size-1])[1]->side_destination;
+    side1 = (*cube->side_down)[1][0].side_destination;
+    side2 = (*cube->side_left)[CUBE_SIZE-1][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 11" << std::endl;
@@ -224,8 +226,8 @@ int Thistlethwaite::phase1_check(BasicCube* cube){
     }
 
     // check dr
-    side1 = (*(*cube->side_down)[1])[cube->size-1]->side_destination;
-    side2 = (*(*cube->side_right)[cube->size-1])[1]->side_destination;
+    side1 = (*cube->side_down)[1][CUBE_SIZE-1].side_destination;
+    side2 = (*cube->side_right)[CUBE_SIZE-1][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 12" << std::endl;
@@ -238,26 +240,26 @@ int Thistlethwaite::phase1_check(BasicCube* cube){
 int Thistlethwaite::phase2_check(BasicCube* cube){
     int number = 0;
 
-    Side side0 = (*(*cube->side_left)[0])[0]->side_destination;
+    Side side0 = (*cube->side_left)[0][0].side_destination;
     number += (side0 != Side::Left && side0 != Side::Right);
-    side0 = (*(*cube->side_left)[0])[cube->size-1]->side_destination;
+    side0 = (*cube->side_left)[0][CUBE_SIZE-1].side_destination;
     number += (side0 != Side::Left && side0 != Side::Right);
-    side0 = (*(*cube->side_left)[cube->size-1])[0]->side_destination;
+    side0 = (*cube->side_left)[CUBE_SIZE-1][0].side_destination;
     number += (side0 != Side::Left && side0 != Side::Right);
-    side0 = (*(*cube->side_left)[cube->size-1])[cube->size-1]->side_destination;
-    number += (side0 != Side::Left && side0 != Side::Right);
-
-    side0 = (*(*cube->side_right)[0])[0]->side_destination;
-    number += (side0 != Side::Left && side0 != Side::Right);
-    side0 = (*(*cube->side_right)[0])[cube->size-1]->side_destination;
-    number += (side0 != Side::Left && side0 != Side::Right);
-    side0 = (*(*cube->side_right)[cube->size-1])[0]->side_destination;
-    number += (side0 != Side::Left && side0 != Side::Right);
-    side0 = (*(*cube->side_right)[cube->size-1])[cube->size-1]->side_destination;
+    side0 = (*cube->side_left)[CUBE_SIZE-1][CUBE_SIZE-1].side_destination;
     number += (side0 != Side::Left && side0 != Side::Right);
 
-    Side side1 = (*(*cube->side_up)[cube->size-1])[1]->side_destination;
-    Side side2 = (*(*cube->side_front)[0])[1]->side_destination;
+    side0 = (*cube->side_right)[0][0].side_destination;
+    number += (side0 != Side::Left && side0 != Side::Right);
+    side0 = (*cube->side_right)[0][CUBE_SIZE-1].side_destination;
+    number += (side0 != Side::Left && side0 != Side::Right);
+    side0 = (*cube->side_right)[CUBE_SIZE-1][0].side_destination;
+    number += (side0 != Side::Left && side0 != Side::Right);
+    side0 = (*cube->side_right)[CUBE_SIZE-1][CUBE_SIZE-1].side_destination;
+    number += (side0 != Side::Left && side0 != Side::Right);
+
+    Side side1 = (*cube->side_up)[CUBE_SIZE-1][1].side_destination;
+    Side side2 = (*cube->side_front)[0][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(std::find(this->edge_slice_Y.begin(), this->edge_slice_Y.end(), std::make_pair(side1, side2)) == this->edge_slice_Y.end() &&
             std::find(this->edge_slice_Y.begin(), this->edge_slice_Y.end(), std::make_pair(side2, side1)) == this->edge_slice_Y.end()){
@@ -265,8 +267,8 @@ int Thistlethwaite::phase2_check(BasicCube* cube){
         // std::cout << "case 1" << std::endl;
     }
 
-    side1 = (*(*cube->side_front)[cube->size-1])[1]->side_destination;
-    side2 = (*(*cube->side_down)[0])[1]->side_destination;
+    side1 = (*cube->side_front)[CUBE_SIZE-1][1].side_destination;
+    side2 = (*cube->side_down)[0][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(std::find(this->edge_slice_Y.begin(), this->edge_slice_Y.end(), std::make_pair(side1, side2)) == this->edge_slice_Y.end() &&
             std::find(this->edge_slice_Y.begin(), this->edge_slice_Y.end(), std::make_pair(side2, side1)) == this->edge_slice_Y.end()){
@@ -274,8 +276,8 @@ int Thistlethwaite::phase2_check(BasicCube* cube){
         // std::cout << "case 2" << std::endl;
     }
 
-    side1 = (*(*cube->side_down)[cube->size-1])[1]->side_destination;
-    side2 = (*(*cube->side_back)[cube->size-1])[1]->side_destination;
+    side1 = (*cube->side_down)[CUBE_SIZE-1][1].side_destination;
+    side2 = (*cube->side_back)[CUBE_SIZE-1][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(std::find(this->edge_slice_Y.begin(), this->edge_slice_Y.end(), std::make_pair(side1, side2)) == this->edge_slice_Y.end() &&
             std::find(this->edge_slice_Y.begin(), this->edge_slice_Y.end(), std::make_pair(side2, side1)) == this->edge_slice_Y.end()){
@@ -283,8 +285,8 @@ int Thistlethwaite::phase2_check(BasicCube* cube){
         // std::cout << "case 3" << std::endl;
     }
 
-    side1 = (*(*cube->side_back)[0])[1]->side_destination;
-    side2 = (*(*cube->side_up)[0])[1]->side_destination;
+    side1 = (*cube->side_back)[0][1].side_destination;
+    side2 = (*cube->side_up)[0][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(std::find(this->edge_slice_Y.begin(), this->edge_slice_Y.end(), std::make_pair(side1, side2)) == this->edge_slice_Y.end() &&
             std::find(this->edge_slice_Y.begin(), this->edge_slice_Y.end(), std::make_pair(side2, side1)) == this->edge_slice_Y.end()){
@@ -298,26 +300,26 @@ int Thistlethwaite::phase2_check(BasicCube* cube){
 int Thistlethwaite::phase3_check(BasicCube* cube){
     int number = this->phase2_check(cube);
 
-    Side side0 = (*(*cube->side_front)[0])[0]->side_destination;
+    Side side0 = (*cube->side_front)[0][0].side_destination;
     number += (side0 != Side::Front && side0 != Side::Back);
-    side0 = (*(*cube->side_front)[0])[cube->size-1]->side_destination;
+    side0 = (*cube->side_front)[0][CUBE_SIZE-1].side_destination;
     number += (side0 != Side::Front && side0 != Side::Back);
-    side0 = (*(*cube->side_front)[cube->size-1])[0]->side_destination;
+    side0 = (*cube->side_front)[CUBE_SIZE-1][0].side_destination;
     number += (side0 != Side::Front && side0 != Side::Back);
-    side0 = (*(*cube->side_front)[cube->size-1])[cube->size-1]->side_destination;
-    number += (side0 != Side::Front && side0 != Side::Back);
-
-    side0 = (*(*cube->side_back)[0])[0]->side_destination;
-    number += (side0 != Side::Front && side0 != Side::Back);
-    side0 = (*(*cube->side_back)[0])[cube->size-1]->side_destination;
-    number += (side0 != Side::Front && side0 != Side::Back);
-    side0 = (*(*cube->side_back)[cube->size-1])[0]->side_destination;
-    number += (side0 != Side::Front && side0 != Side::Back);
-    side0 = (*(*cube->side_back)[cube->size-1])[cube->size-1]->side_destination;
+    side0 = (*cube->side_front)[CUBE_SIZE-1][CUBE_SIZE-1].side_destination;
     number += (side0 != Side::Front && side0 != Side::Back);
 
-    Side side1 = (*(*cube->side_left)[1])[cube->size-1]->side_destination;
-    Side side2 = (*(*cube->side_front)[1])[0]->side_destination;
+    side0 = (*cube->side_back)[0][0].side_destination;
+    number += (side0 != Side::Front && side0 != Side::Back);
+    side0 = (*cube->side_back)[0][CUBE_SIZE-1].side_destination;
+    number += (side0 != Side::Front && side0 != Side::Back);
+    side0 = (*cube->side_back)[CUBE_SIZE-1][0].side_destination;
+    number += (side0 != Side::Front && side0 != Side::Back);
+    side0 = (*cube->side_back)[CUBE_SIZE-1][CUBE_SIZE-1].side_destination;
+    number += (side0 != Side::Front && side0 != Side::Back);
+
+    Side side1 = (*cube->side_left)[1][CUBE_SIZE-1].side_destination;
+    Side side2 = (*cube->side_front)[1][0].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(std::find(this->edge_slice_X.begin(), this->edge_slice_X.end(), std::make_pair(side1, side2)) == this->edge_slice_X.end() &&
             std::find(this->edge_slice_X.begin(), this->edge_slice_X.end(), std::make_pair(side2, side1)) == this->edge_slice_X.end()){
@@ -325,8 +327,8 @@ int Thistlethwaite::phase3_check(BasicCube* cube){
         // std::cout << "case 1" << std::endl;
     }
 
-    side1 = (*(*cube->side_front)[1])[cube->size-1]->side_destination;
-    side2 = (*(*cube->side_right)[1])[0]->side_destination;
+    side1 = (*cube->side_front)[1][CUBE_SIZE-1].side_destination;
+    side2 = (*cube->side_right)[1][0].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(std::find(this->edge_slice_X.begin(), this->edge_slice_X.end(), std::make_pair(side1, side2)) == this->edge_slice_X.end() &&
             std::find(this->edge_slice_X.begin(), this->edge_slice_X.end(), std::make_pair(side2, side1)) == this->edge_slice_X.end()){
@@ -334,8 +336,8 @@ int Thistlethwaite::phase3_check(BasicCube* cube){
         // std::cout << "case 2" << std::endl;
     }
 
-    side1 = (*(*cube->side_right)[1])[cube->size-1]->side_destination;
-    side2 = (*(*cube->side_back)[1])[cube->size-1]->side_destination;
+    side1 = (*cube->side_right)[1][CUBE_SIZE-1].side_destination;
+    side2 = (*cube->side_back)[1][CUBE_SIZE-1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(std::find(this->edge_slice_X.begin(), this->edge_slice_X.end(), std::make_pair(side1, side2)) == this->edge_slice_X.end() &&
             std::find(this->edge_slice_X.begin(), this->edge_slice_X.end(), std::make_pair(side2, side1)) == this->edge_slice_X.end()){
@@ -343,8 +345,8 @@ int Thistlethwaite::phase3_check(BasicCube* cube){
         // std::cout << "case 3" << std::endl;
     }
 
-    side1 = (*(*cube->side_back)[1])[0]->side_destination;
-    side2 = (*(*cube->side_left)[1])[0]->side_destination;
+    side1 = (*cube->side_back)[1][0].side_destination;
+    side2 = (*cube->side_left)[1][0].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(std::find(this->edge_slice_X.begin(), this->edge_slice_X.end(), std::make_pair(side1, side2)) == this->edge_slice_X.end() &&
             std::find(this->edge_slice_X.begin(), this->edge_slice_X.end(), std::make_pair(side2, side1)) == this->edge_slice_X.end()){
@@ -353,26 +355,26 @@ int Thistlethwaite::phase3_check(BasicCube* cube){
     }
 
 
-    side0 = (*(*cube->side_up)[0])[0]->side_destination;
+    side0 = (*cube->side_up)[0][0].side_destination;
     number += (side0 != Side::Up && side0 != Side::Down);
-    side0 = (*(*cube->side_up)[0])[cube->size-1]->side_destination;
+    side0 = (*cube->side_up)[0][CUBE_SIZE-1].side_destination;
     number += (side0 != Side::Up && side0 != Side::Down);
-    side0 = (*(*cube->side_up)[cube->size-1])[0]->side_destination;
+    side0 = (*cube->side_up)[CUBE_SIZE-1][0].side_destination;
     number += (side0 != Side::Up && side0 != Side::Down);
-    side0 = (*(*cube->side_up)[cube->size-1])[cube->size-1]->side_destination;
-    number += (side0 != Side::Up && side0 != Side::Down);
-
-    side0 = (*(*cube->side_down)[0])[0]->side_destination;
-    number += (side0 != Side::Up && side0 != Side::Down);
-    side0 = (*(*cube->side_down)[0])[cube->size-1]->side_destination;
-    number += (side0 != Side::Up && side0 != Side::Down);
-    side0 = (*(*cube->side_down)[cube->size-1])[0]->side_destination;
-    number += (side0 != Side::Up && side0 != Side::Down);
-    side0 = (*(*cube->side_down)[cube->size-1])[cube->size-1]->side_destination;
+    side0 = (*cube->side_up)[CUBE_SIZE-1][CUBE_SIZE-1].side_destination;
     number += (side0 != Side::Up && side0 != Side::Down);
 
-    side1 = (*(*cube->side_up)[1])[cube->size-1]->side_destination;
-    side2 = (*(*cube->side_right)[0])[1]->side_destination;
+    side0 = (*cube->side_down)[0][0].side_destination;
+    number += (side0 != Side::Up && side0 != Side::Down);
+    side0 = (*cube->side_down)[0][CUBE_SIZE-1].side_destination;
+    number += (side0 != Side::Up && side0 != Side::Down);
+    side0 = (*cube->side_down)[CUBE_SIZE-1][0].side_destination;
+    number += (side0 != Side::Up && side0 != Side::Down);
+    side0 = (*cube->side_down)[CUBE_SIZE-1][CUBE_SIZE-1].side_destination;
+    number += (side0 != Side::Up && side0 != Side::Down);
+
+    side1 = (*cube->side_up)[1][CUBE_SIZE-1].side_destination;
+    side2 = (*cube->side_right)[0][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(std::find(this->edge_slice_Z.begin(), this->edge_slice_Z.end(), std::make_pair(side1, side2)) == this->edge_slice_Z.end() &&
             std::find(this->edge_slice_Z.begin(), this->edge_slice_Z.end(), std::make_pair(side2, side1)) == this->edge_slice_Z.end()){
@@ -380,8 +382,8 @@ int Thistlethwaite::phase3_check(BasicCube* cube){
         // std::cout << "case 1" << std::endl;
     }
 
-    side1 = (*(*cube->side_right)[cube->size-1])[1]->side_destination;
-    side2 = (*(*cube->side_down)[1])[cube->size-1]->side_destination;
+    side1 = (*cube->side_right)[CUBE_SIZE-1][1].side_destination;
+    side2 = (*cube->side_down)[1][CUBE_SIZE-1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(std::find(this->edge_slice_Z.begin(), this->edge_slice_Z.end(), std::make_pair(side1, side2)) == this->edge_slice_Z.end() &&
             std::find(this->edge_slice_Z.begin(), this->edge_slice_Z.end(), std::make_pair(side2, side1)) == this->edge_slice_Z.end()){
@@ -389,8 +391,8 @@ int Thistlethwaite::phase3_check(BasicCube* cube){
         // std::cout << "case 2" << std::endl;
     }
 
-    side1 = (*(*cube->side_down)[1])[0]->side_destination;
-    side2 = (*(*cube->side_left)[cube->size-1])[1]->side_destination;
+    side1 = (*cube->side_down)[1][0].side_destination;
+    side2 = (*cube->side_left)[CUBE_SIZE-1][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(std::find(this->edge_slice_Z.begin(), this->edge_slice_Z.end(), std::make_pair(side1, side2)) == this->edge_slice_Z.end() &&
             std::find(this->edge_slice_Z.begin(), this->edge_slice_Z.end(), std::make_pair(side2, side1)) == this->edge_slice_Z.end()){
@@ -398,8 +400,8 @@ int Thistlethwaite::phase3_check(BasicCube* cube){
         // std::cout << "case 3" << std::endl;
     }
 
-    side1 = (*(*cube->side_left)[0])[1]->side_destination;
-    side2 = (*(*cube->side_up)[1])[0]->side_destination;
+    side1 = (*cube->side_left)[0][1].side_destination;
+    side2 = (*cube->side_up)[1][0].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(std::find(this->edge_slice_Z.begin(), this->edge_slice_Z.end(), std::make_pair(side1, side2)) == this->edge_slice_Z.end() &&
             std::find(this->edge_slice_Z.begin(), this->edge_slice_Z.end(), std::make_pair(side2, side1)) == this->edge_slice_Z.end()){
@@ -462,6 +464,10 @@ int Thistlethwaite::bfs(std::vector<Move*>* allowed_moves, int (Thistlethwaite::
         }
         this->current_cubes->pop();
         for(auto move : *allowed_moves){
+            if(cube->solution_length > 0 &&
+                !check_move_sanity(cube->solution_path->back(), move)){
+                continue;
+            }
             // std::cout << move->to_string() << std::endl;
             BasicCube* new_cube = new BasicCube(cube);
             new_cube->rotate(move);
@@ -513,4 +519,31 @@ static inline std::map<std::pair<Side,Side>, bool>* initialize_phase1_map(){
     new_map->insert({std::make_pair(Side::Down, Side::Right), true});
 
     return new_map;
+}
+
+
+static inline bool check_move_sanity(Move* last_move, Move* new_move){
+    // Let's see that there is no need to move the same side twice, as:
+    //  - two same quarter moves == half move - already calculated the step before
+    //  - two same half moves == empty move - no need to go back to the step before
+    //  - clockwise + counterclockwise move == empty move - 
+    //                  no need to go back to the step before
+    //  - quarter move + half move == quarter move of opposing clockwise
+    if(last_move->side == new_move->side){
+        return false;
+    }
+
+
+    // Also when two moves don't interfere with each other 
+    // then their order doesn't matter.
+    // This means we can restrict moves only to come up in specific order:
+    //  - only F -> B, no Front move can occure directly after Back move
+    //  - only L -> R, no Left move can occure directly after Right move
+    //  - only U -> D, no Up move can occure directly after Down move
+    if((last_move->side == Side::Back && new_move->side == Side::Front) ||
+            (last_move->side == Side::Right && new_move->side == Side::Left) ||
+            (last_move->side == Side::Down && new_move->side == Side::Up)){
+        return false;
+    }
+    return true;
 }
