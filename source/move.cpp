@@ -77,20 +77,21 @@ Move::Move(std::string str){
         if(std::isdigit(c)){
             if(!temp_is_end_of_tile_index){
                 tile_index *= 10;
-                tile_index += std::stoi(std::to_string(c));
+                tile_index += c - '0';
             }
             else{
-                if(std::stoi(std::to_string(c)) == 2){
+                if(c - '0' == 2){
                     Move::is_half_turn = true;
                 }
             }
         }
         else if(std::isalpha(c)){
+            Move::side = char_to_side(c);
+            temp_is_end_of_tile_index = true;
+        }
+        else{
             if(c == '\''){
                 clockwise = false;
-            }
-            else{
-                Move::side = char_to_side(c);
             }
         }
     }

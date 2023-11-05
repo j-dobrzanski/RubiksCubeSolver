@@ -7,10 +7,31 @@
 #include <map>
 #include <array>
 #include <utility>
+#include <stack>
 
+#define PHASE_1_MAX_NO_OF_MOVES 7
+#define PHASE_2_MAX_NO_OF_MOVES 10
+#define PHASE_3_MAX_NO_OF_MOVES 13
+#define PHASE_4_MAX_NO_OF_MOVES 15
+
+#define PHASE_1_TABLE_DIR_NAME "tables/phase_1.txt"
+#define PHASE_2_TABLE_DIR_NAME "tables/phase_2.txt"
+#define PHASE_3_TABLE_DIR_NAME "tables/phase_3.txt"
+#define PHASE_4_TABLE_DIR_NAME "tables/phase_4.txt"
+
+class Compare_cubes {
+    public:
+    bool operator()(BasicCube* cube1, BasicCube* cube2) {
+        return cube1->temp_length_plus_heuristic < cube2->temp_length_plus_heuristic;
+    }
+};
+
+void debug();
 
 class Thistlethwaite {
     public:
+        uint16_t compare_cubes_heuristics(BasicCube* cube1, BasicCube* cube2);
+
         BasicCube* start_cube;
         BasicCube* solved_cube;
         uint8_t phase1_move_count;
@@ -22,7 +43,7 @@ class Thistlethwaite {
         uint8_t phase4_move_count;
         // auto phase3_time
 
-        std::queue<BasicCube*>* current_cubes;
+        std::priority_queue<BasicCube*, std::vector<BasicCube*>, Compare_cubes>* current_cubes;
         std::vector<Move*> moves_p1;
         std::vector<Move*> moves_p2;
         std::vector<Move*> moves_p3;
@@ -57,15 +78,79 @@ class Thistlethwaite {
             std::make_pair(Side::Left, Side::Up)
         };
 
+        std::array<std::tuple<Side, Side, Side>, 4> corner_orbit = {
+            std::make_tuple(Side::Left, Side::Up, Side::Back),
+            std::make_tuple(Side::Left, Side::Down, Side::Front),
+            std::make_tuple(Side::Right, Side::Down, Side::Back),
+            std::make_tuple(Side::Right, Side::Up, Side::Front)
+        };
+
+        std::array<std::tuple<Side, Side, Side>, 8> corner_order = {
+            std::make_tuple(Side::Left, Side::Up, Side::Back),
+            std::make_tuple(Side::Left, Side::Down, Side::Front),
+            std::make_tuple(Side::Right, Side::Down, Side::Back),
+            std::make_tuple(Side::Right, Side::Up, Side::Front),
+            std::make_tuple(Side::Left, Side::Up, Side::Front),
+            std::make_tuple(Side::Left, Side::Down, Side::Back),
+            std::make_tuple(Side::Right, Side::Down, Side::Front),
+            std::make_tuple(Side::Right, Side::Up, Side::Back)
+        };
+
         
-        int bfs(std::vector<Move*>* allowed_moves, int (Thistlethwaite::*check_function)(BasicCube*));
+        int bfs(std::vector<Move*>* allowed_moves,
+                uint16_t (Thistlethwaite::*check_function)(BasicCube*),
+                uint16_t (Thistlethwaite::*get_table_offset)(BasicCube*),
+                uint16_t max_depth);
         
         int clear_current_cubes();
 
-        int phase1_check(BasicCube* cube);
-        int phase2_check(BasicCube* cube);
-        int phase3_check(BasicCube* cube);
-        int phase4_check(BasicCube* cube);
+        uint16_t edge_orientation(BasicCube* cube);
+
+        uint16_t corner_orientations(BasicCube* cube);
+        uint16_t edge_slice_permutation(BasicCube* cube, std::array<std::pair<Side, Side>, 4>* edge_slice);
+
+        uint32_t corner_permutation(BasicCube* cube);
+        uint16_t get_corner_destination(std::tuple<Side, Side, Side> corner_tuple);
+
+        uint16_t edge_slice_permutation_to_id(BasicCube* cube, std::array<std::pair<Side, Side>, 4> edge_slice);
+
+        int initialize_phase_3_initial_cubes();
+
+        int generate_table_phase_1();
+        int generate_table_phase_2();
+        int generate_table_phase_3();
+        int generate_table_phase_4();
+
+        int print_table_phase_1();
+        int print_table_phase_2();
+        int print_table_phase_3();
+        int print_table_phase_4();
+        
+        int read_table_phase_1();
+        int read_table_phase_2();
+        int read_table_phase_3();
+        int read_table_phase_4();
+
+        uint16_t get_table_1_offset(BasicCube* cube);
+        uint16_t get_table_2_offset(BasicCube* cube);
+        uint16_t get_table_3_offset(BasicCube* cube);
+        uint16_t get_table_4_offset(BasicCube* cube);
+
+        uint8_t phase1_table[2048] = {0};
+
+        uint8_t phase2_table[495][2187] = {0};
+
+        BasicCube* phase_3_table_initial_cubes[96] = {0};
+        uint8_t phase3_table[40320][70] = {0};
+
+        uint8_t phase4_table[96][24][24][24] = {0};
+
+        uint32_t corner_permutation_to_id_phase4(uint32_t number);
+
+        uint16_t phase1_check(BasicCube* cube);
+        uint16_t phase2_check(BasicCube* cube);
+        uint16_t phase3_check(BasicCube* cube);
+        uint16_t phase4_check(BasicCube* cube);
 };
 
 #endif

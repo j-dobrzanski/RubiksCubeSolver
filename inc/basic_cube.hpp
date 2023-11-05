@@ -5,6 +5,7 @@
 #include "basic_cube_tile.hpp"
 #include <cstdint>
 #include <vector>
+#include <tuple>
 
 #include <array>
 
@@ -38,6 +39,8 @@ class BasicCube : Cube{
 
         std::vector<Move*>* solution_path;
         uint64_t solution_length;
+        uint16_t temp_length;
+        uint16_t temp_length_plus_heuristic;
 
         BasicCube();
         BasicCube(BasicCube* cube);
@@ -54,6 +57,11 @@ class BasicCube : Cube{
         int rotate_up(uint8_t tile_index, bool clockwise);
         int rotate_down(uint8_t tile_index, bool clockwise);
         int compare_cube(BasicCube* cube);
+
+        int rotate_sequence(std::string move_sequence);
+
+        std::tuple<Side, Side, Side> get_corner(Side left_or_right, Side up_or_down, Side front_or_back);
+        std::pair<Side, Side> get_edge(Side side1, Side side2);
 
         ~BasicCube();
 

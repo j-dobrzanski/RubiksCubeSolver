@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <iostream>
 #include <algorithm>
+#include <utility>
 
 static inline int check_solution_side(Side current_side_enum, std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* current_side);
 static inline int rotate_side(std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>** side_p, bool clockwise);
@@ -19,6 +20,7 @@ BasicCube::BasicCube(){
     BasicCube::side_down = initialize_side(Side::Down);
     BasicCube::solution_path = new std::vector<Move*>;
     this->solution_length = 0;
+    this->temp_length = 0;
 }
 
 BasicCube::BasicCube(BasicCube* cube){
@@ -33,7 +35,7 @@ BasicCube::BasicCube(BasicCube* cube){
     this->side_up = copy_side(cube->side_up);
     this->side_down = copy_side(cube->side_down);
     this->solution_length = cube->solution_length;
-
+    this->temp_length = cube->temp_length;
 }
 
 std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* BasicCube::initialize_side(Side side){
@@ -86,7 +88,7 @@ int BasicCube::rotate_front(uint8_t tile_index, bool clockwise){
         rotate_side(&(BasicCube::side_front), clockwise);
     }
     else if(tile_index == CUBE_SIZE - 1){
-        rotate_side(&(BasicCube::side_back), !clockwise);
+        rotate_side(&(BasicCube::side_back), clockwise);
     }
     // rotate other parts
     for(uint8_t i = 0; i < CUBE_SIZE; i++){
@@ -162,12 +164,14 @@ int BasicCube::rotate_down(uint8_t tile_index, bool clockwise){
     if(clockwise){
         (*BasicCube::side_front)[tile_index] = left_row;
         (*BasicCube::side_right)[tile_index] = front_row;
+        std::reverse(right_row.begin(), right_row.end());
         (*BasicCube::side_back)[tile_index] = right_row;
         (*BasicCube::side_left)[tile_index] = back_row;
     }
     else{
         (*BasicCube::side_front)[tile_index] = right_row;
         (*BasicCube::side_right)[tile_index] = back_row;
+        std::reverse(left_row.begin(), left_row.end());
         (*BasicCube::side_back)[tile_index] = left_row;
         (*BasicCube::side_left)[tile_index] = front_row;
     }
@@ -276,22 +280,49 @@ int BasicCube::compare_cube(BasicCube* cube){
 
 int BasicCube::rotate(Move* move){
     this->solution_length++;
+    this->temp_length++;
     BasicCube::solution_path->push_back(new Move(move));
-    switch(move->side){
-        case Side::Back:
-            return BasicCube::rotate_back(move->tile_index, move->clockwise);
-        case Side::Front:
-            return BasicCube::rotate_front(move->tile_index, move->clockwise);
-        case Side::Down:
-            return BasicCube::rotate_down(move->tile_index, move->clockwise);
-        case Side::Up:
-            return BasicCube::rotate_up(move->tile_index, move->clockwise);
-        case Side::Left:
-            return BasicCube::rotate_left(move->tile_index, move->clockwise);
-        case Side::Right:
-            return BasicCube::rotate_right(move->tile_index, move->clockwise);
-        default:
-            return -1;
+    if(move->is_half_turn){
+        switch(move->side){
+            case Side::Back:
+                return std::min(BasicCube::rotate_back(move->tile_index, move->clockwise),
+                                BasicCube::rotate_back(move->tile_index, move->clockwise));
+            case Side::Front:
+                return std::min(BasicCube::rotate_front(move->tile_index, move->clockwise),
+                                BasicCube::rotate_front(move->tile_index, move->clockwise));
+            case Side::Down:
+                return std::min(BasicCube::rotate_down(move->tile_index, move->clockwise),
+                                BasicCube::rotate_down(move->tile_index, move->clockwise));
+            case Side::Up:
+                return std::min(BasicCube::rotate_up(move->tile_index, move->clockwise),
+                                BasicCube::rotate_up(move->tile_index, move->clockwise));
+            case Side::Left:
+                return std::min(BasicCube::rotate_left(move->tile_index, move->clockwise),
+                                BasicCube::rotate_left(move->tile_index, move->clockwise));
+            case Side::Right:
+                return std::min(BasicCube::rotate_right(move->tile_index, move->clockwise),
+                                BasicCube::rotate_right(move->tile_index, move->clockwise));
+            default:
+                return -1;
+        }
+    }
+    else{
+        switch(move->side){
+            case Side::Back:
+                return BasicCube::rotate_back(move->tile_index, move->clockwise);
+            case Side::Front:
+                return BasicCube::rotate_front(move->tile_index, move->clockwise);
+            case Side::Down:
+                return BasicCube::rotate_down(move->tile_index, move->clockwise);
+            case Side::Up:
+                return BasicCube::rotate_up(move->tile_index, move->clockwise);
+            case Side::Left:
+                return BasicCube::rotate_left(move->tile_index, move->clockwise);
+            case Side::Right:
+                return BasicCube::rotate_right(move->tile_index, move->clockwise);
+            default:
+                return -1;
+        }        
     }
 }
 
@@ -302,14 +333,166 @@ int BasicCube::clear_solution_path(){
     delete BasicCube::solution_path;
     BasicCube::solution_path = new std::vector<Move*>;
     this->solution_length = 0;
+    this->temp_length = 0;
     return 0;
 }
 
 int BasicCube::print_solution_path(){
-    for(auto move : *this->solution_path){
-        std::cout << move->to_string() << " ";
+    if(this->solution_path != NULL){
+        for(auto move : *this->solution_path){
+            std::cout << move->to_string() << " ";
+        }        
+        std::cout << std::endl;
     }
-    std::cout << std::endl;
+    else{
+        std::cout << "Cube not moved" << std::endl;
+    }
+
+    return 0;
+}
+
+std::tuple<Side, Side, Side> BasicCube::get_corner(Side left_or_right, Side up_or_down, Side front_or_back){
+    if(left_or_right == Side::Left &&
+            up_or_down == Side::Up &&
+            front_or_back == Side::Front){
+        return std::make_tuple(
+            (*this->side_left)[0][CUBE_SIZE - 1].side_destination,
+            (*this->side_up)[CUBE_SIZE - 1][0].side_destination,
+            (*this->side_front)[0][0].side_destination
+        );
+    }
+    else if(left_or_right == Side::Left &&
+            up_or_down == Side::Up &&
+            front_or_back == Side::Back){
+        return std::make_tuple(
+            (*this->side_left)[0][0].side_destination,
+            (*this->side_up)[0][0].side_destination,
+            (*this->side_back)[0][0].side_destination);
+    }
+    else if(left_or_right == Side::Left &&
+            up_or_down == Side::Down &&
+            front_or_back == Side::Front){
+        return std::make_tuple(
+            (*this->side_left)[CUBE_SIZE - 1][CUBE_SIZE - 1].side_destination,
+            (*this->side_down)[CUBE_SIZE - 1][0].side_destination,
+            (*this->side_front)[CUBE_SIZE - 1][0].side_destination
+        );
+    }
+    else if(left_or_right == Side::Left &&
+            up_or_down == Side::Down &&
+            front_or_back == Side::Back){
+        return std::make_tuple(
+            (*this->side_left)[CUBE_SIZE - 1][0].side_destination,
+            (*this->side_down)[0][0].side_destination,
+            (*this->side_back)[CUBE_SIZE - 1][0].side_destination
+        );
+    }
+    else if(left_or_right == Side::Right &&
+            up_or_down == Side::Up &&
+            front_or_back == Side::Front){
+        return std::make_tuple(
+            (*this->side_right)[0][0].side_destination,
+            (*this->side_up)[CUBE_SIZE - 1][CUBE_SIZE - 1].side_destination,
+            (*this->side_front)[0][CUBE_SIZE - 1].side_destination
+        );
+    }
+    else if(left_or_right == Side::Right &&
+            up_or_down == Side::Up &&
+            front_or_back == Side::Back){
+        return std::make_tuple(
+            (*this->side_right)[0][CUBE_SIZE - 1].side_destination,
+            (*this->side_up)[0][CUBE_SIZE - 1].side_destination,
+            (*this->side_back)[0][CUBE_SIZE - 1].side_destination
+        );
+    }
+    else if(left_or_right == Side::Right &&
+            up_or_down == Side::Down &&
+            front_or_back == Side::Front){
+        return std::make_tuple(
+            (*this->side_right)[CUBE_SIZE - 1][0].side_destination,
+            (*this->side_down)[CUBE_SIZE - 1][CUBE_SIZE - 1].side_destination,
+            (*this->side_front)[CUBE_SIZE - 1][CUBE_SIZE - 1].side_destination
+        );
+    }
+    else if(left_or_right == Side::Right &&
+            up_or_down == Side::Down &&
+            front_or_back == Side::Back){
+        return std::make_tuple(
+            (*this->side_right)[CUBE_SIZE - 1][CUBE_SIZE - 1].side_destination,
+            (*this->side_down)[0][CUBE_SIZE - 1].side_destination,
+            (*this->side_back)[CUBE_SIZE - 1][CUBE_SIZE - 1].side_destination
+        );
+    }
+    return std::make_tuple(Side::Front, Side::Front, Side::Front);
+}
+
+std::pair<Side, Side> BasicCube::get_edge(Side side1, Side side2){
+    if(side2 == Side::Left || side2 == Side::Right){
+        auto temp = side1;
+        side1 = side2;
+        side2 = temp;
+    }
+    
+    if(side1 == Side::Left){
+        if(side2 == Side::Front){
+            return std::make_pair((*this->side_left)[1][CUBE_SIZE - 1].side_destination, (*this->side_front)[1][0].side_destination);
+        }
+        else if(side2 == Side::Back){
+            return std::make_pair((*this->side_left)[1][0].side_destination, (*this->side_back)[1][0].side_destination);
+        }
+        else if(side2 == Side::Up){
+            return std::make_pair((*this->side_left)[0][1].side_destination, (*this->side_up)[1][0].side_destination);
+        }
+        else if(side2 == Side::Down){
+            return std::make_pair((*this->side_left)[CUBE_SIZE - 1][1].side_destination, (*this->side_down)[1][0].side_destination);
+        }
+    }
+    else if(side1 == Side::Right){
+        if(side2 == Side::Front){
+            return std::make_pair((*this->side_right)[1][0].side_destination, (*this->side_front)[1][CUBE_SIZE - 1].side_destination);
+        }
+        else if(side2 == Side::Back){
+            return std::make_pair((*this->side_right)[1][CUBE_SIZE - 1].side_destination, (*this->side_back)[1][CUBE_SIZE - 1].side_destination);
+        }
+        else if(side2 == Side::Up){
+            return std::make_pair((*this->side_right)[0][1].side_destination, (*this->side_up)[1][CUBE_SIZE - 1].side_destination);
+        }
+        else if(side2 == Side::Down){
+            return std::make_pair((*this->side_right)[CUBE_SIZE - 1][1].side_destination, (*this->side_down)[1][CUBE_SIZE - 1].side_destination);
+        }
+    }
+    else if((side1 == Side::Up && side2 == Side::Front) ||
+            (side1 == Side::Front && side2 == Side::Up)){
+        return std::make_pair((*this->side_front)[0][1].side_destination, (*this->side_up)[CUBE_SIZE - 1][1].side_destination);
+    }
+    else if((side1 == Side::Down && side2 == Side::Front) ||
+            (side1 == Side::Front && side2 == Side::Down)){
+        return std::make_pair((*this->side_front)[CUBE_SIZE - 1][1].side_destination, (*this->side_down)[CUBE_SIZE - 1][1].side_destination);
+    }
+    else if((side1 == Side::Up && side2 == Side::Back) ||
+            (side1 == Side::Back && side2 == Side::Up)){
+        return std::make_pair((*this->side_back)[0][1].side_destination, (*this->side_up)[0][1].side_destination);
+    }
+    else if((side1 == Side::Down && side2 == Side::Back) ||
+            (side1 == Side::Back && side2 == Side::Down)){
+        return std::make_pair((*this->side_back)[CUBE_SIZE - 1][1].side_destination, (*this->side_down)[0][1].side_destination);
+    }
+    return std::make_pair(Side::Front, Side::Front);
+}
+
+int BasicCube::rotate_sequence(std::string move_sequence){
+    size_t length = move_sequence.size();
+    size_t current_index = 0;
+    while(current_index < length){
+        size_t next_blank = move_sequence.find(' ', current_index);
+        if(next_blank == move_sequence.npos){
+            next_blank = length;
+        }
+        Move* next_move = new Move(move_sequence.substr(current_index, next_blank-current_index));
+        this->rotate(next_move);
+        delete next_move;
+        current_index = next_blank + 1;
+    }
     return 0;
 }
 
@@ -330,7 +513,7 @@ static inline int check_solution_side(Side current_side_enum, std::array<std::ar
     for(size_t i = 0; i < CUBE_SIZE; i++){
         for(size_t j = 0; j < CUBE_SIZE; j++){
             if(current_side_enum != (*current_side)[i][j].side_destination){
-                return -1;
+                return 1;
             }
         }
     }
