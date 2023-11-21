@@ -30,4 +30,15 @@ class Move {
         Move(Move* move);
 };
 
+/**
+ *  Checks if making new_move on the top of the lsat_move from cube solution path
+ *  makes sense, e.g. whether it has a chance of prducing new cube configuration
+ *
+ *  @param[in]  last_move   last move on cube solution path (last move made on the cube)
+ *  @param[in]  new_move    new move that is going to be performed on cube
+ *
+ *  @return     true if move makes sense, false if there is no point of making it
+ */
+bool check_move_sanity(Move* last_move, Move* new_move);
+
 #endif

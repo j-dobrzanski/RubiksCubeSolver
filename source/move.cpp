@@ -103,3 +103,31 @@ Move::Move(Move* move){
     this->clockwise = move->clockwise;
     this->is_half_turn = move->is_half_turn;
 }
+
+
+bool check_move_sanity(Move* last_move, Move* new_move){
+    // Let's see that there is no need to move the same side twice, as:
+    //  - two same quarter moves == half move - already calculated the step before
+    //  - two same half moves == empty move - no need to go back to the step before
+    //  - clockwise + counterclockwise move == empty move - 
+    //                  no need to go back to the step before
+    //  - quarter move + half move == quarter move of opposing clockwise
+    if(last_move->side == new_move->side &&
+        last_move->tile_index == new_move->tile_index){
+        return false;
+    }
+
+
+    // Also when two moves don't interfere with each other 
+    // then their order doesn't matter.
+    // This means we can restrict moves only to come up in specific order:
+    //  - only F -> B, no Front move can occure directly after Back move
+    //  - only L -> R, no Left move can occure directly after Right move
+    //  - only U -> D, no Up move can occure directly after Down move
+    if((last_move->side == Side::Back && new_move->side == Side::Front) ||
+            (last_move->side == Side::Right && new_move->side == Side::Left) ||
+            (last_move->side == Side::Down && new_move->side == Side::Up)){
+        return false;
+    }
+    return true;
+}

@@ -19,13 +19,6 @@
 #define PHASE_3_TABLE_DIR_NAME "tables/phase_3.txt"
 #define PHASE_4_TABLE_DIR_NAME "tables/phase_4.txt"
 
-class Compare_cubes {
-    public:
-    bool operator()(BasicCube* cube1, BasicCube* cube2) {
-        return cube1->temp_length_plus_heuristic < cube2->temp_length_plus_heuristic;
-    }
-};
-
 void debug();
 
 class Thistlethwaite {

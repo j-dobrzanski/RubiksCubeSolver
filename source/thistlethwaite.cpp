@@ -13,23 +13,19 @@
 #include <stack>
 #include <iomanip>
 
-static inline std::map<std::pair<Side,Side>, bool>* initialize_phase1_map();
+static std::map<std::pair<Side,Side>, bool>* initialize_phase1_map();
 
-static inline bool check_move_sanity(Move* last_move, Move* new_move);
+static uint16_t corner_orientation_value(uint16_t number, Side clockwise, Side anticlockwise);
+static uint16_t corner_orientations_to_id(uint16_t number);
+static uint16_t edge_permutation_value(uint16_t number, Side side1, Side side2, std::array<std::pair<Side, Side>, 4>* edge_slice);
+static uint16_t edge_permutation_slice_Y_to_id(uint16_t permutation_value);
+static void print_corner_orientation(uint16_t number);
 
-static inline uint16_t corner_orientation_value(uint16_t number, Side clockwise, Side anticlockwise);
-static inline uint16_t corner_orientations_to_id(uint16_t number);
-static inline uint16_t edge_permutation_value(uint16_t number, Side side1, Side side2, std::array<std::pair<Side, Side>, 4>* edge_slice);
-static inline uint16_t edge_permutation_slice_Y_to_id(uint16_t permutation_value);
-static inline void print_corner_orientation(uint16_t number);
+static bool corners_in_orbits(BasicCube* cube, std::array<std::tuple<Side, Side, Side>, 4> orbit);
+static bool compare_corner_orbit_tuple(std::tuple<Side, Side, Side> tuple, std::array<std::tuple<Side, Side, Side>, 4> orbit);
+static uint16_t edge_permutation_slice_X_to_id(uint16_t permutation_value);
 
-static inline bool corners_in_orbits(BasicCube* cube, std::array<std::tuple<Side, Side, Side>, 4> orbit);
-static inline bool compare_corner_orbit_tuple(std::tuple<Side, Side, Side> tuple, std::array<std::tuple<Side, Side, Side>, 4> orbit);
-static inline bool compare_tuple(std::tuple<Side, Side, Side> tuple1, std::tuple<Side, Side, Side> tuple2);
-static inline bool compare_pair(std::pair<Side, Side> pair1, std::pair<Side, Side> pair2);
-static inline uint16_t edge_permutation_slice_X_to_id(uint16_t permutation_value);
-
-static inline uint32_t corner_permutation_to_id(uint32_t number);
+static uint32_t corner_permutation_to_id(uint32_t number);
 
 #define PHASE_1_DEPTH 6
 #define PHASE_2_DEPTH 6
@@ -1256,7 +1252,7 @@ uint32_t Thistlethwaite::corner_permutation(BasicCube *cube){
 
 uint16_t Thistlethwaite::get_corner_destination(std::tuple<Side, Side, Side> corner_tuple){
     for(size_t i = 0; i < 8; i++){
-        if(compare_tuple(corner_tuple, this->corner_order[i])){
+        if(compare_corner(corner_tuple, this->corner_order[i])){
             return i;
         }
     }
@@ -1309,29 +1305,29 @@ uint16_t Thistlethwaite::edge_slice_permutation_to_id(BasicCube* cube, std::arra
     // std::cout << "Destiantion permutation (real for a time):" << std::endl;
     
     for(size_t i = 0; i < 4; i++){
-        destination_edge_slice[i] = cube->get_edge(std::get<0>(edge_slice[i]), std::get<1>(edge_slice[i]));
+        destination_edge_slice[i] = cube->get_solved_edge(std::get<0>(edge_slice[i]), std::get<1>(edge_slice[i]));
         // std::cout << side_to_char(std::get<0>(destination_edge_slice[i])) << ", " << side_to_char(std::get<1>(destination_edge_slice[i])) << std::endl;
     }
 
-    if(compare_pair(destination_edge_slice[0], edge_slice[0])){
-        if(compare_pair(destination_edge_slice[1], edge_slice[1])){
-            if(compare_pair(destination_edge_slice[2], edge_slice[2])){
+    if(compare_edge(destination_edge_slice[0], edge_slice[0])){
+        if(compare_edge(destination_edge_slice[1], edge_slice[1])){
+            if(compare_edge(destination_edge_slice[2], edge_slice[2])){
                 return 0;
             }
             else{
                 return 1;
             }
         }
-        else if(compare_pair(destination_edge_slice[1], edge_slice[2])){
-            if(compare_pair(destination_edge_slice[2], edge_slice[1])){
+        else if(compare_edge(destination_edge_slice[1], edge_slice[2])){
+            if(compare_edge(destination_edge_slice[2], edge_slice[1])){
                 return 2;
             }
             else{
                 return 3;
             }
         }
-        else if(compare_pair(destination_edge_slice[1], edge_slice[3])){
-            if(compare_pair(destination_edge_slice[2], edge_slice[1])){
+        else if(compare_edge(destination_edge_slice[1], edge_slice[3])){
+            if(compare_edge(destination_edge_slice[2], edge_slice[1])){
                 return 4;
             }
             else{
@@ -1339,25 +1335,25 @@ uint16_t Thistlethwaite::edge_slice_permutation_to_id(BasicCube* cube, std::arra
             }
         }
     }
-    else if(compare_pair(destination_edge_slice[0], edge_slice[1])){
-        if(compare_pair(destination_edge_slice[1], edge_slice[0])){
-            if(compare_pair(destination_edge_slice[2], edge_slice[2])){
+    else if(compare_edge(destination_edge_slice[0], edge_slice[1])){
+        if(compare_edge(destination_edge_slice[1], edge_slice[0])){
+            if(compare_edge(destination_edge_slice[2], edge_slice[2])){
                 return 6;
             }
             else{
                 return 7;
             }
         }
-        else if(compare_pair(destination_edge_slice[1], edge_slice[2])){
-            if(compare_pair(destination_edge_slice[2], edge_slice[0])){
+        else if(compare_edge(destination_edge_slice[1], edge_slice[2])){
+            if(compare_edge(destination_edge_slice[2], edge_slice[0])){
                 return 8;
             }
             else{
                 return 9;
             }
         }
-        else if(compare_pair(destination_edge_slice[1], edge_slice[3])){
-            if(compare_pair(destination_edge_slice[2], edge_slice[0])){
+        else if(compare_edge(destination_edge_slice[1], edge_slice[3])){
+            if(compare_edge(destination_edge_slice[2], edge_slice[0])){
                 return 10;
             }
             else{
@@ -1365,25 +1361,25 @@ uint16_t Thistlethwaite::edge_slice_permutation_to_id(BasicCube* cube, std::arra
             }
         }
     }
-    else if(compare_pair(destination_edge_slice[0], edge_slice[2])){
-        if(compare_pair(destination_edge_slice[1], edge_slice[0])){
-            if(compare_pair(destination_edge_slice[2], edge_slice[1])){
+    else if(compare_edge(destination_edge_slice[0], edge_slice[2])){
+        if(compare_edge(destination_edge_slice[1], edge_slice[0])){
+            if(compare_edge(destination_edge_slice[2], edge_slice[1])){
                 return 12;
             }
             else{
                 return 13;
             }
         }
-        else if(compare_pair(destination_edge_slice[1], edge_slice[1])){
-            if(compare_pair(destination_edge_slice[2], edge_slice[0])){
+        else if(compare_edge(destination_edge_slice[1], edge_slice[1])){
+            if(compare_edge(destination_edge_slice[2], edge_slice[0])){
                 return 14;
             }
             else{
                 return 15;
             }
         }
-        else if(compare_pair(destination_edge_slice[1], edge_slice[3])){
-            if(compare_pair(destination_edge_slice[2], edge_slice[0])){
+        else if(compare_edge(destination_edge_slice[1], edge_slice[3])){
+            if(compare_edge(destination_edge_slice[2], edge_slice[0])){
                 return 16;
             }
             else{
@@ -1391,25 +1387,25 @@ uint16_t Thistlethwaite::edge_slice_permutation_to_id(BasicCube* cube, std::arra
             }
         }
     }
-    else if(compare_pair(destination_edge_slice[0], edge_slice[3])){
-        if(compare_pair(destination_edge_slice[1], edge_slice[0])){
-            if(compare_pair(destination_edge_slice[2], edge_slice[1])){
+    else if(compare_edge(destination_edge_slice[0], edge_slice[3])){
+        if(compare_edge(destination_edge_slice[1], edge_slice[0])){
+            if(compare_edge(destination_edge_slice[2], edge_slice[1])){
                 return 18;
             }
             else{
                 return 19;
             }
         }
-        else if(compare_pair(destination_edge_slice[1], edge_slice[1])){
-            if(compare_pair(destination_edge_slice[2], edge_slice[0])){
+        else if(compare_edge(destination_edge_slice[1], edge_slice[1])){
+            if(compare_edge(destination_edge_slice[2], edge_slice[0])){
                 return 20;
             }
             else{
                 return 21;
             }
         }
-        else if(compare_pair(destination_edge_slice[1], edge_slice[2])){
-            if(compare_pair(destination_edge_slice[2], edge_slice[0])){
+        else if(compare_edge(destination_edge_slice[1], edge_slice[2])){
+            if(compare_edge(destination_edge_slice[2], edge_slice[0])){
                 return 22;
             }
             else{
@@ -1431,7 +1427,7 @@ uint16_t Thistlethwaite::edge_orientation(BasicCube* cube){
 }
 
 
-static inline std::map<std::pair<Side,Side>, bool>* initialize_phase1_map(){
+static std::map<std::pair<Side,Side>, bool>* initialize_phase1_map(){
     std::map<std::pair<Side,Side>, bool>* new_map = new std::map<std::pair<Side,Side>, bool>();
     new_map->insert({std::make_pair(Side::Front, Side::Up), true});
     new_map->insert({std::make_pair(Side::Front, Side::Left), true});
@@ -1452,34 +1448,7 @@ static inline std::map<std::pair<Side,Side>, bool>* initialize_phase1_map(){
     return new_map;
 }
 
-
-static inline bool check_move_sanity(Move* last_move, Move* new_move){
-    // Let's see that there is no need to move the same side twice, as:
-    //  - two same quarter moves == half move - already calculated the step before
-    //  - two same half moves == empty move - no need to go back to the step before
-    //  - clockwise + counterclockwise move == empty move - 
-    //                  no need to go back to the step before
-    //  - quarter move + half move == quarter move of opposing clockwise
-    if(last_move->side == new_move->side){
-        return false;
-    }
-
-
-    // Also when two moves don't interfere with each other 
-    // then their order doesn't matter.
-    // This means we can restrict moves only to come up in specific order:
-    //  - only F -> B, no Front move can occure directly after Back move
-    //  - only L -> R, no Left move can occure directly after Right move
-    //  - only U -> D, no Up move can occure directly after Down move
-    if((last_move->side == Side::Back && new_move->side == Side::Front) ||
-            (last_move->side == Side::Right && new_move->side == Side::Left) ||
-            (last_move->side == Side::Down && new_move->side == Side::Up)){
-        return false;
-    }
-    return true;
-}
-
-static inline uint16_t corner_orientation_value(uint16_t number, Side clockwise, Side anticlockwise){
+static uint16_t corner_orientation_value(uint16_t number, Side clockwise, Side anticlockwise){
     number = number << 2;
     if(clockwise == Side::Left || clockwise == Side::Right){
         number += 1;
@@ -1490,7 +1459,7 @@ static inline uint16_t corner_orientation_value(uint16_t number, Side clockwise,
     return number;
 }
 
-static inline uint16_t corner_orientations_to_id(uint16_t number){
+static uint16_t corner_orientations_to_id(uint16_t number){
     uint16_t index = 0;
     // technically to count ths value for all bits this loop shoul go up to < 8,
     // however the last orientation is defined by the 7 others,
@@ -1503,7 +1472,7 @@ static inline uint16_t corner_orientations_to_id(uint16_t number){
     return index;
 }
 
-static inline uint16_t edge_permutation_value(uint16_t number, Side side1, Side side2, std::array<std::pair<Side, Side>, 4>* edge_slice){
+static uint16_t edge_permutation_value(uint16_t number, Side side1, Side side2, std::array<std::pair<Side, Side>, 4>* edge_slice){
     number = number << 1;
     if(std::find(edge_slice->begin(), edge_slice->end(), std::make_pair(side1, side2)) == edge_slice->end() &&
             std::find(edge_slice->begin(), edge_slice->end(), std::make_pair(side2, side1)) == edge_slice->end()){
@@ -1512,7 +1481,7 @@ static inline uint16_t edge_permutation_value(uint16_t number, Side side1, Side 
     return number;
 }
 
-static inline uint16_t edge_permutation_slice_Y_to_id(uint16_t permutation_value){
+static uint16_t edge_permutation_slice_Y_to_id(uint16_t permutation_value){
     if(!permutation_to_id_lookup_table_initialized_phase_2){
         permutation_to_id_lookup_table_initialized_phase_2 = true;
         uint16_t id = 0;
@@ -1530,14 +1499,14 @@ static inline uint16_t edge_permutation_slice_Y_to_id(uint16_t permutation_value
     return permutation_to_id_lookup_table_phase_2[permutation_value];
 }
 
-static inline void print_corner_orientation(uint16_t number){
+static void print_corner_orientation(uint16_t number){
     for(uint8_t i = 0; i < 8; i++){
         std::cout << (int) (number & 0b11);
         number = number >> 2;
     } 
 }
 
-static inline bool corners_in_orbits(BasicCube* cube, std::array<std::tuple<Side, Side, Side>, 4> orbit){
+static bool corners_in_orbits(BasicCube* cube, std::array<std::tuple<Side, Side, Side>, 4> orbit){
 
     Side side1, side2, side3;
 
@@ -1576,39 +1545,16 @@ static inline bool corners_in_orbits(BasicCube* cube, std::array<std::tuple<Side
     return true;
 }
 
-static inline bool compare_corner_orbit_tuple(std::tuple<Side, Side, Side> tuple, std::array<std::tuple<Side, Side, Side>, 4> orbit){
+static bool compare_corner_orbit_tuple(std::tuple<Side, Side, Side> tuple, std::array<std::tuple<Side, Side, Side>, 4> orbit){
     for(auto orbit_tuple : orbit){
-        if(compare_tuple(tuple, orbit_tuple)){
+        if(compare_corner(tuple, orbit_tuple)){
             return true;
         }
     }
     return false;
 }
 
-static inline bool compare_tuple(std::tuple<Side, Side, Side> tuple1, std::tuple<Side, Side, Side> tuple2){
-    if(!(std::get<0>(tuple1) == std::get<0>(tuple2) ||
-        std::get<0>(tuple1) == std::get<1>(tuple2) ||
-        std::get<0>(tuple1) == std::get<2>(tuple2))){
-        return false;
-    }
-    if(!(std::get<1>(tuple1) == std::get<0>(tuple2) ||
-        std::get<1>(tuple1) == std::get<1>(tuple2) ||
-        std::get<1>(tuple1) == std::get<2>(tuple2))){
-        return false;
-    }
-    if(!(std::get<2>(tuple1) == std::get<0>(tuple2) ||
-        std::get<2>(tuple1) == std::get<1>(tuple2) ||
-        std::get<2>(tuple1) == std::get<2>(tuple2))){
-        return false;
-    }
-    return true;
-}
-
-static inline bool compare_pair(std::pair<Side, Side> pair1, std::pair<Side, Side> pair2){
-    return (pair1 == pair2) || (pair1 == std::make_pair(std::get<1>(pair2), std::get<0>(pair2)));
-}
-
-static inline uint32_t corner_permutation_to_id(uint32_t number){
+static uint32_t corner_permutation_to_id(uint32_t number){
     uint16_t permutation[8] = {0};
     for(size_t i = 0; i < 8; i++){
         permutation[i] = number & 0b111;
@@ -1627,7 +1573,7 @@ static inline uint32_t corner_permutation_to_id(uint32_t number){
     return index;
 }
 
-static inline uint16_t edge_permutation_slice_X_to_id(uint16_t permutation_value){
+static uint16_t edge_permutation_slice_X_to_id(uint16_t permutation_value){
     if(!permutation_to_id_lookup_table_initialized_phase_3){
         permutation_to_id_lookup_table_initialized_phase_3 = true;
         uint16_t id = 0;
