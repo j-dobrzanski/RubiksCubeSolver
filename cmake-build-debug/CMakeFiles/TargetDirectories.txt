@@ -1,3 +1,0 @@
-C:/Users/jsdob/Desktop/inżynierka/RubiksCubeSolver/cmake-build-debug/CMakeFiles/RubiksCubeSolver.dir
-C:/Users/jsdob/Desktop/inżynierka/RubiksCubeSolver/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/jsdob/Desktop/inżynierka/RubiksCubeSolver/cmake-build-debug/CMakeFiles/rebuild_cache.dir
