@@ -79,7 +79,7 @@ int NCubeSolver::reduce_iddfs(size_t (NCubeSolver::*check_step_completion)(Basic
         return 0;
     }
 
-    size_t depth = 1;
+    // size_t depth = 1;
     BasicCube* result_cube = {0};
     int result = -1;
 

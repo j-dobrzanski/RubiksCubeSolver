@@ -23,6 +23,22 @@ char side_to_char(Side side){
     }
 }
 
+char side_to_char_whole_cube(Side side){
+    switch(side){
+        case Side::Up:
+        case Side::Down:
+            return 'z';
+        case Side::Front:
+        case Side::Back:
+            return 'y';
+        case Side::Right:
+        case Side::Left:
+            return 'x';
+        default:
+            return -1;
+    }
+}
+
 Side char_to_side(char c){
     switch(c){
         case 'U':
@@ -44,14 +60,26 @@ Side char_to_side(char c){
 
 std::string Move::to_string(){
     std::string str = "";
-    str.append(std::to_string(Move::tile_index));
-    str += side_to_char(Move::side);
-    if(is_half_turn){
-        str.append("2");
+    if(!is_cube_rotation){
+        str.append(std::to_string(Move::tile_index));
+        str += side_to_char(Move::side);
+        if(is_half_turn){
+            str.append("2");
+        }
+        else if(!clockwise){
+            str.append("'");
+        }        
     }
-    else if(!clockwise){
-        str.append("'");
+    else{
+        str += side_to_char_whole_cube(this->side);
+        if(is_half_turn){
+            str.append("2");
+        }
+        else if(!clockwise){
+            str.append("'");
+        }
     }
+
     return str;
 }
 
@@ -104,6 +132,13 @@ Move::Move(Move* move){
     this->is_half_turn = move->is_half_turn;
 }
 
+Move::Move(Side side, bool is_clockwise, bool is_half_turn){
+    this->side = side;
+    this->tile_index = 0;
+    this->clockwise = is_clockwise;
+    this->is_half_turn = is_half_turn;
+    this->is_cube_rotation = true;
+}
 
 bool check_move_sanity(Move* last_move, Move* new_move){
     // Let's see that there is no need to move the same side twice, as:

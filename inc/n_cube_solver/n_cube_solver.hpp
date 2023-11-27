@@ -35,6 +35,11 @@ class NCubeSolver {
          */
         int reduce();
 
+        /**
+         *  Reducing/solving cube using commutators
+         */
+        int commutator_reduce();
+
 
         /**
          *  Solving cube in the same way as in reducing but already putting 
@@ -47,6 +52,75 @@ class NCubeSolver {
 
         NCubeSolver(BasicCube* cube);
         ~NCubeSolver();
+    private:
+        /**
+         *  Performs iddfs for each step of reducing algorithm
+         *
+         *  @param[in]  check_step_completion   function checking if each step is completed
+         *  @param[in]  step_start_cube         cube to perform iddfs on
+         */
+        int reduce_iddfs(size_t (NCubeSolver::*check_step_completion)(BasicCube*), BasicCube* step_start_cube);
+
+        /**
+         *  Performs single dfs - one iteration for iddfs
+         *
+         *  @param[in]  check_step_completion   function checking if each step is completed
+         *  @param[in]  step_start_cube         cube to perform dfs on
+         *  @param[in]  max_depth               max path length for this dfs iteration
+         *  @param[out] solved_cube             if solution is found then solved cube is saved here
+         *
+         *  @return     returns 0 if solved cube is found and -1 if there is no path to solution
+         */
+        int reduce_single_dfs(size_t (NCubeSolver::*check_step_completion)(BasicCube*), BasicCube* step_start_cube, size_t max_depth, BasicCube** solved_cube);
+
+        /**
+         *  pair of opposite centres to be solved first
+         */
+        std::pair<Side, Side> choose_opposite_sides_step_1(BasicCube* cube); 
+        std::pair<Side, Side> opposite_sides_step_1;
+        size_t check_step_1_completion(BasicCube* cube);
+
+        /**
+         *  pair of adjacent centres to be solved next
+         */
+        std::pair<Side, Side> choose_adjacent_sides_step_2(BasicCube* cube);
+        std::pair<Side, Side> adjacent_sides_step_2;
+        size_t check_step_2_completion(BasicCube* cube);
+
+        /**
+         *  the last pair of sides
+         */
+        std::pair<Side, Side> choose_last_sides_step_3(BasicCube* cube);
+        std::pair<Side, Side> last_sides_step_3;
+        size_t check_step_3_completion(BasicCube* cube);
+
+        /**
+         *  array of four edges to be solved first in order:
+         *  (Down) Front, Right, Back, Left
+         */
+        std::array<std::pair<Side, Side>, 4> choose_first_4_edges_step_4(BasicCube* cube);
+        std::array<std::pair<Side, Side>, 4> first_4_edges_step_4;
+        size_t check_step_4_completion(BasicCube* cube);
+
+        /**
+         *  array of four edges to be solved second in order:
+         *  (Up) Front, Right, Back, Left
+         */
+        std::array<std::pair<Side, Side>, 4> choose_second_4_edges_step_5(BasicCube* cube);
+        std::array<std::pair<Side, Side>, 4> second_4_edges_step_5;
+        size_t check_step_5_completion(BasicCube* cube);
+
+        /**
+         *  array of last four edges to be solved last in order:
+         *  Front-Left, Front-Right, Right-Back, Back-Left
+         */
+        std::array<std::pair<Side, Side>, 4> choose_last_4_edges_step_6(BasicCube* cube);
+        std::array<std::pair<Side, Side>, 4> last_4_edges_step_6;
+        size_t check_step_6_completion(BasicCube* cube);
+};
+
+#endif
+
 /**
 1 6
 1 12
@@ -116,71 +190,3 @@ class NCubeSolver {
 
 20 23
 */
-    private:
-        /**
-         *  Performs iddfs for each step of reducing algorithm
-         *
-         *  @param[in]  check_step_completion   function checking if each step is completed
-         *  @param[in]  step_start_cube         cube to perform iddfs on
-         */
-        int reduce_iddfs(size_t (NCubeSolver::*check_step_completion)(BasicCube*), BasicCube* step_start_cube);
-
-        /**
-         *  Performs single dfs - one iteration for iddfs
-         *
-         *  @param[in]  check_step_completion   function checking if each step is completed
-         *  @param[in]  step_start_cube         cube to perform dfs on
-         *  @param[in]  max_depth               max path length for this dfs iteration
-         *  @param[out] solved_cube             if solution is found then solved cube is saved here
-         *
-         *  @return     returns 0 if solved cube is found and -1 if there is no path to solution
-         */
-        int reduce_single_dfs(size_t (NCubeSolver::*check_step_completion)(BasicCube*), BasicCube* step_start_cube, size_t max_depth, BasicCube** solved_cube);
-
-        /**
-         *  pair of opposite centres to be solved first
-         */
-        std::pair<Side, Side> choose_opposite_sides_step_1(BasicCube* cube); 
-        std::pair<Side, Side> opposite_sides_step_1;
-        size_t check_step_1_completion(BasicCube* cube);
-
-        /**
-         *  pair of adjacent centres to be solved next
-         */
-        std::pair<Side, Side> choose_adjacent_sides_step_2(BasicCube* cube);
-        std::pair<Side, Side> adjacent_sides_step_2;
-        size_t check_step_2_completion(BasicCube* cube);
-
-        /**
-         *  the last pair of sides
-         */
-        std::pair<Side, Side> choose_last_sides_step_3(BasicCube* cube);
-        std::pair<Side, Side> last_sides_step_3;
-        size_t check_step_3_completion(BasicCube* cube);
-
-        /**
-         *  array of four edges to be solved first in order:
-         *  (Down) Front, Right, Back, Left
-         */
-        std::array<std::pair<Side, Side>, 4> choose_first_4_edges_step_4(BasicCube* cube);
-        std::array<std::pair<Side, Side>, 4> first_4_edges_step_4;
-        size_t check_step_4_completion(BasicCube* cube);
-
-        /**
-         *  array of four edges to be solved second in order:
-         *  (Up) Front, Right, Back, Left
-         */
-        std::array<std::pair<Side, Side>, 4> choose_second_4_edges_step_5(BasicCube* cube);
-        std::array<std::pair<Side, Side>, 4> second_4_edges_step_5;
-        size_t check_step_5_completion(BasicCube* cube);
-
-        /**
-         *  array of last four edges to be solved last in order:
-         *  Front-Left, Front-Right, Right-Back, Back-Left
-         */
-        std::array<std::pair<Side, Side>, 4> choose_last_4_edges_step_6(BasicCube* cube);
-        std::array<std::pair<Side, Side>, 4> last_4_edges_step_6;
-        size_t check_step_6_completion(BasicCube* cube);
-};
-
-#endif

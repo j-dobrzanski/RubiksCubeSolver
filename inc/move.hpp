@@ -23,8 +23,19 @@ class Move {
         bool clockwise;
         bool is_half_turn;
 
+        bool is_cube_rotation;
+
         std::string to_string();
 
+        /**
+         *  Used for whole cube rotations
+         *  It should save sides Right/Left, Front/Back or Up/Down
+         *  and display them as x, y, or z 
+         *
+         *  @param[in]  side    
+         *  @param[in]  is_half_turn
+         */
+        Move(Side side, bool is_clockwise, bool is_half_turn);
         Move(Side side, uint8_t tile_index, bool clockwise, bool is_half_turn);
         Move(std::string str);
         Move(Move* move);

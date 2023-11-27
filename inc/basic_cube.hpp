@@ -11,9 +11,11 @@
 
 #include <array>
 
-#define CUBE_SIZE 4
-#define EDGE_LENGTH CUBE_SIZE - 2
-#define CUBE_SIZE_LAST_INDEX CUBE_SIZE - 1
+#include "../config.hpp"
+
+// #define CUBE_SIZE 13
+#define EDGE_LENGTH (CUBE_SIZE - 2)
+#define CUBE_SIZE_LAST_INDEX (CUBE_SIZE - 1)
 
 /**
  *  All edges of cube in specific order
@@ -44,6 +46,16 @@ bool compare_edge(std::pair<Side, Side> pair1, std::pair<Side, Side> pair2);
  *  @return     true if tuples are equal (even if in dofferent order)
  */
 bool compare_corner(std::tuple<Side, Side, Side> tuple1, std::tuple<Side, Side, Side> tuple2);
+
+/**
+ *  Helper function to normalize order of sides when describing an edge
+ *  (as in ordered_edge_set)
+ *
+ *  @param[in]  edge    edge to be normalized (ordered)
+ *
+ *  @return     normalized edge
+ */
+std::pair<Side, Side> normalize_edge(std::pair<Side, Side> edge);
 
 /**
     polygon mesh for 3x3x3:

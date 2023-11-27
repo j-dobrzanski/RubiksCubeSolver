@@ -19,7 +19,7 @@ static uint16_t corner_orientation_value(uint16_t number, Side clockwise, Side a
 static uint16_t corner_orientations_to_id(uint16_t number);
 static uint16_t edge_permutation_value(uint16_t number, Side side1, Side side2, std::array<std::pair<Side, Side>, 4>* edge_slice);
 static uint16_t edge_permutation_slice_Y_to_id(uint16_t permutation_value);
-static void print_corner_orientation(uint16_t number);
+// static void print_corner_orientation(uint16_t number);
 
 static bool corners_in_orbits(BasicCube* cube, std::array<std::tuple<Side, Side, Side>, 4> orbit);
 static bool compare_corner_orbit_tuple(std::tuple<Side, Side, Side> tuple, std::array<std::tuple<Side, Side, Side>, 4> orbit);
@@ -1075,12 +1075,12 @@ int Thistlethwaite::solve(){
     std::cout << "End of phase 1" << std::endl;
     std::cout << "number of skipped cubes: " << temp_debug_value << std::endl;
     temp_debug_value = 0;
-    std::cout << this->current_cubes->empty() << std::endl;
+    // std::cout << this->current_cubes->empty() << std::endl;
     if(!this->current_cubes->empty()){
         this->current_cubes->top()->temp_length=0;
-        this->current_cubes->top()->print_cube();
-        this->current_cubes->top()->print_solution_path();
-        std::cout << this->phase1_check(this->current_cubes->top()) << std::endl;
+        // this->current_cubes->top()->print_cube();
+        // this->current_cubes->top()->print_solution_path();
+        // std::cout << this->phase1_check(this->current_cubes->top()) << std::endl;
         std::cout << "solution path length: " << this->current_cubes->top()->solution_length << " == " << this->current_cubes->top()->solution_path->size() << std::endl;
     }
     else{
@@ -1094,13 +1094,13 @@ int Thistlethwaite::solve(){
               PHASE_2_MAX_NO_OF_MOVES);
     std::cout << "End of phase 2" << std::endl;
     std::cout << "number of skipped cubes: " << temp_debug_value << std::endl;
-    std::cout << this->current_cubes->empty() << std::endl;
+    // std::cout << this->current_cubes->empty() << std::endl;
     temp_debug_value = 0;
     if(!this->current_cubes->empty()){
         this->current_cubes->top()->temp_length=0;
-        this->current_cubes->top()->print_cube();
-        this->current_cubes->top()->print_solution_path();
-        std::cout << this->phase2_check(this->current_cubes->top()) << std::endl;
+        // this->current_cubes->top()->print_cube();
+        // this->current_cubes->top()->print_solution_path();
+        // std::cout << this->phase2_check(this->current_cubes->top()) << std::endl;
         std::cout << "solution path length: " << this->current_cubes->top()->solution_length << " == " << this->current_cubes->top()->solution_path->size() << std::endl;
     }
     else{
@@ -1115,12 +1115,12 @@ int Thistlethwaite::solve(){
     std::cout << "End of phase 3" << std::endl;
     std::cout << "number of skipped cubes: " << temp_debug_value << std::endl;
     temp_debug_value = 0;
-    std::cout << this->current_cubes->empty() << std::endl;
+    // std::cout << this->current_cubes->empty() << std::endl;
     if(!this->current_cubes->empty()){
         this->current_cubes->top()->temp_length=0;
-        this->current_cubes->top()->print_cube();
-        this->current_cubes->top()->print_solution_path();
-        std::cout << this->phase3_check(this->current_cubes->top()) << std::endl;
+        // this->current_cubes->top()->print_cube();
+        // this->current_cubes->top()->print_solution_path();
+        // std::cout << this->phase3_check(this->current_cubes->top()) << std::endl;
         std::cout << "solution path length: " << this->current_cubes->top()->solution_length << " == " << this->current_cubes->top()->solution_path->size() << std::endl;
     }
     else{
@@ -1134,12 +1134,12 @@ int Thistlethwaite::solve(){
     std::cout << "End of phase 4" << std::endl;
     std::cout << "number of skipped cubes: " << temp_debug_value << std::endl;
     temp_debug_value = 0;
-    std::cout << this->current_cubes->empty() << std::endl;
+    // std::cout << this->current_cubes->empty() << std::endl;
     if(!this->current_cubes->empty()){
         this->current_cubes->top()->temp_length=0;
-        this->current_cubes->top()->print_cube();
-        this->current_cubes->top()->print_solution_path();
-        std::cout << this->phase4_check(this->current_cubes->top()) << std::endl;
+        // this->current_cubes->top()->print_cube();
+        // this->current_cubes->top()->print_solution_path();
+        // std::cout << this->phase4_check(this->current_cubes->top()) << std::endl;
         std::cout << "solution path length: " << this->current_cubes->top()->solution_length << " == " << this->current_cubes->top()->solution_path->size() << std::endl;
         this->solved_cube = this->current_cubes->top();
         this->current_cubes->pop();    
@@ -1499,12 +1499,12 @@ static uint16_t edge_permutation_slice_Y_to_id(uint16_t permutation_value){
     return permutation_to_id_lookup_table_phase_2[permutation_value];
 }
 
-static void print_corner_orientation(uint16_t number){
-    for(uint8_t i = 0; i < 8; i++){
-        std::cout << (int) (number & 0b11);
-        number = number >> 2;
-    } 
-}
+// static void print_corner_orientation(uint16_t number){
+//     for(uint8_t i = 0; i < 8; i++){
+//         std::cout << (int) (number & 0b11);
+//         number = number >> 2;
+//     } 
+// }
 
 static bool corners_in_orbits(BasicCube* cube, std::array<std::tuple<Side, Side, Side>, 4> orbit){
 

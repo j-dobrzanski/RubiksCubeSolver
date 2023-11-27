@@ -185,9 +185,9 @@ int BasicCube::rotate_up(uint8_t tile_index, bool clockwise){
         rotate_side(&(BasicCube::side_up), clockwise);
         this->sides[Side::Up] = this->side_up;        
     }
-    // else if(tile_index == CUBE_SIZE - 1){
-    //     rotate_side(&(BasicCube::side_down), CUBE_SIZE, !clockwise);
-    // }
+    else if(tile_index == CUBE_SIZE - 1){
+        rotate_side(&(BasicCube::side_down), !clockwise);
+    }
     // rotate other parts
     auto front_row = (*BasicCube::side_front)[tile_index];
     auto right_row = (*BasicCube::side_right)[tile_index];
@@ -275,6 +275,7 @@ int BasicCube::check_solution(){
 }
 
 void BasicCube::print_cube(){
+#ifndef NO_CUBE_PRINT
     // printing up part
     for(uint8_t i = 0; i < CUBE_SIZE; i++){
         std::cout << std::string(3*CUBE_SIZE, ' ');
@@ -321,6 +322,7 @@ void BasicCube::print_cube(){
         std::cout <<  std::endl;
     }
     std::cout << std::endl;
+#endif    
 }
 
 int BasicCube::compare_cube(BasicCube* cube){
@@ -503,6 +505,8 @@ int BasicCube::rotate_sequence(std::string move_sequence){
         }
         Move* next_move = new Move(move_sequence.substr(current_index, next_blank-current_index));
         this->rotate(next_move);
+        // std::cout << move_sequence.substr(current_index, next_blank-current_index) << std::endl;
+        // this->print_cube();
         delete next_move;
         current_index = next_blank + 1;
     }
@@ -520,6 +524,18 @@ BasicCube::~BasicCube(){
         delete move;
     }
     delete solution_path;
+}
+
+std::pair<Side, Side> normalize_edge(std::pair<Side, Side> edge){
+    if(edge.second == Side::Left || edge.second == Side::Right){
+        return std::make_pair(edge.second, edge.first);
+    }
+    else if(edge.first == Side::Left || edge.first == Side::Right ||
+            edge.first == Side::Front || edge.first == Side::Back){
+        return edge;
+    }
+    return std::make_pair(edge.second, edge.first);
+
 }
 
 static int check_solution_side(Side current_side_enum, std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* current_side){
