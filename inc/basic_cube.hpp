@@ -58,6 +58,17 @@ bool compare_corner(std::tuple<Side, Side, Side> tuple1, std::tuple<Side, Side, 
 std::pair<Side, Side> normalize_edge(std::pair<Side, Side> edge);
 
 /**
+ *  Helper function to normalize order of sides when describing a corner
+ *  (in order Left/Right -> Front/Back -> Up/Down).
+ *  It expects a valid corner - one side from each pair.
+ *
+ *  @param[in]  corner    corner to be normalized (ordered)
+ *
+ *  @return     normalized corner
+ */
+std::tuple<Side, Side, Side> normalize_corner(std::tuple<Side, Side, Side> corner);
+
+/**
     polygon mesh for 3x3x3:
                         [T1.1][T1.2][T1.3]
                         [T2.1][T2.2][T2.3]
@@ -95,12 +106,12 @@ class BasicCube : Cube{
         int check_solution();
         void print_cube();
         int rotate(Move* move);
-        int rotate_left(uint8_t tile_index, bool clockwise);
-        int rotate_right(uint8_t tile_index, bool clockwise);
-        int rotate_front(uint8_t tile_index, bool clockwise);
-        int rotate_back(uint8_t tile_index, bool clockwise);
-        int rotate_up(uint8_t tile_index, bool clockwise);
-        int rotate_down(uint8_t tile_index, bool clockwise);
+        int rotate_left(size_t tile_index, bool clockwise);
+        int rotate_right(size_t tile_index, bool clockwise);
+        int rotate_front(size_t tile_index, bool clockwise);
+        int rotate_back(size_t tile_index, bool clockwise);
+        int rotate_up(size_t tile_index, bool clockwise);
+        int rotate_down(size_t tile_index, bool clockwise);
         int compare_cube(BasicCube* cube);
 
         int rotate_sequence(std::string move_sequence);

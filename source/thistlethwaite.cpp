@@ -21,7 +21,7 @@ static uint16_t edge_permutation_value(uint16_t number, Side side1, Side side2, 
 static uint16_t edge_permutation_slice_Y_to_id(uint16_t permutation_value);
 // static void print_corner_orientation(uint16_t number);
 
-static bool corners_in_orbits(BasicCube* cube, std::array<std::tuple<Side, Side, Side>, 4> orbit);
+static bool corners_in_orbits(BasicCube3* cube, std::array<std::tuple<Side, Side, Side>, 4> orbit);
 static bool compare_corner_orbit_tuple(std::tuple<Side, Side, Side> tuple, std::array<std::tuple<Side, Side, Side>, 4> orbit);
 static uint16_t edge_permutation_slice_X_to_id(uint16_t permutation_value);
 
@@ -44,7 +44,15 @@ bool permutation_to_id_lookup_table_initialized_phase_4 = false;
 uint16_t temp_debug_value = 0;
 
 Thistlethwaite::Thistlethwaite(BasicCube* cube){
-    Thistlethwaite::start_cube = cube;
+    this->start_cube = new BasicCube3(cube);
+
+    this->previous_moves_count = this->start_cube->solution_length;
+    this->previous_moves = new std::vector<Move*>();
+    for(auto move : *this->start_cube->solution_path){
+        previous_moves->push_back(new Move(move));
+    }
+    this->start_cube->clear_solution_path();
+
     this->solved_cube = NULL;
 
     this->phase1_move_count = 0;
@@ -52,8 +60,8 @@ Thistlethwaite::Thistlethwaite(BasicCube* cube){
     this->phase3_move_count = 0;
     this->phase4_move_count = 0;
 
-    current_cubes = new std::priority_queue<BasicCube*, std::vector<BasicCube*>, Compare_cubes>();
-    current_cubes->push(new BasicCube(cube));
+    current_cubes = new std::priority_queue<BasicCube3*, std::vector<BasicCube3*>, Compare_cubes_3>();
+    current_cubes->push(new BasicCube3(this->start_cube));
 
     Move* move = new Move(Side::Left, 0, true, false);
     Thistlethwaite::moves_p1.push_back(move);
@@ -155,7 +163,7 @@ Thistlethwaite::Thistlethwaite(BasicCube* cube){
 
 }
 
-uint16_t Thistlethwaite::phase1_check(BasicCube* cube){
+uint16_t Thistlethwaite::phase1_check(BasicCube3* cube){
     uint16_t number = 0;
 
 
@@ -171,7 +179,7 @@ uint16_t Thistlethwaite::phase1_check(BasicCube* cube){
 
     // check dl
     side1 = (*cube->side_down)[1][0].side_destination;
-    side2 = (*cube->side_left)[CUBE_SIZE-1][1].side_destination;
+    side2 = (*cube->side_left)[CUBE_SIZE_3-1][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 11" << std::endl;
@@ -180,8 +188,8 @@ uint16_t Thistlethwaite::phase1_check(BasicCube* cube){
     number = number << 1;
 
     // check dr
-    side1 = (*cube->side_down)[1][CUBE_SIZE-1].side_destination;
-    side2 = (*cube->side_right)[CUBE_SIZE-1][1].side_destination;
+    side1 = (*cube->side_down)[1][CUBE_SIZE_3-1].side_destination;
+    side2 = (*cube->side_right)[CUBE_SIZE_3-1][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 12" << std::endl;
@@ -190,7 +198,7 @@ uint16_t Thistlethwaite::phase1_check(BasicCube* cube){
     number = number << 1;
 
     // check ur
-    side1 = (*cube->side_up)[1][CUBE_SIZE-1].side_destination;
+    side1 = (*cube->side_up)[1][CUBE_SIZE_3-1].side_destination;
     side2 = (*cube->side_right)[0][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
@@ -200,7 +208,7 @@ uint16_t Thistlethwaite::phase1_check(BasicCube* cube){
     number = number << 1;
 
     // check bl
-    side1 = (*cube->side_back)[1][CUBE_SIZE-1].side_destination;
+    side1 = (*cube->side_back)[1][CUBE_SIZE_3-1].side_destination;
     side2 = (*cube->side_left)[1][0].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
@@ -211,7 +219,7 @@ uint16_t Thistlethwaite::phase1_check(BasicCube* cube){
 
     // check fl
     side1 = (*cube->side_front)[1][0].side_destination;
-    side2 = (*cube->side_left)[1][CUBE_SIZE-1].side_destination;
+    side2 = (*cube->side_left)[1][CUBE_SIZE_3-1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 4" << std::endl;
@@ -220,7 +228,7 @@ uint16_t Thistlethwaite::phase1_check(BasicCube* cube){
     number = number << 1;
 
     // check fr
-    side1 = (*cube->side_front)[1][CUBE_SIZE-1].side_destination;
+    side1 = (*cube->side_front)[1][CUBE_SIZE_3-1].side_destination;
     side2 = (*cube->side_right)[1][0].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
@@ -231,7 +239,7 @@ uint16_t Thistlethwaite::phase1_check(BasicCube* cube){
 
     // check br
     side1 = (*cube->side_back)[1][0].side_destination;
-    side2 = (*cube->side_right)[1][CUBE_SIZE-1].side_destination;
+    side2 = (*cube->side_right)[1][CUBE_SIZE_3-1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 6" << std::endl;
@@ -241,7 +249,7 @@ uint16_t Thistlethwaite::phase1_check(BasicCube* cube){
 
     // check fu
     side1 = (*cube->side_front)[0][1].side_destination;
-    side2 = (*cube->side_up)[CUBE_SIZE-1][1].side_destination;
+    side2 = (*cube->side_up)[CUBE_SIZE_3-1][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 1" << std::endl;
@@ -250,8 +258,8 @@ uint16_t Thistlethwaite::phase1_check(BasicCube* cube){
     number = number << 1;
 
     // check fd
-    side1 = (*cube->side_front)[CUBE_SIZE-1][1].side_destination;
-    side2 = (*cube->side_down)[CUBE_SIZE-1][1].side_destination;
+    side1 = (*cube->side_front)[CUBE_SIZE_3-1][1].side_destination;
+    side2 = (*cube->side_down)[CUBE_SIZE_3-1][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
         // std::cout << "case 3" << std::endl;
@@ -260,7 +268,7 @@ uint16_t Thistlethwaite::phase1_check(BasicCube* cube){
     number = number << 1;
 
     // check bd
-    side1 = (*cube->side_back)[CUBE_SIZE-1][1].side_destination;
+    side1 = (*cube->side_back)[CUBE_SIZE_3-1][1].side_destination;
     side2 = (*cube->side_down)[0][1].side_destination;
     // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     if(this->edge_orientation_map->find(std::make_pair(side1, side2)) == this->edge_orientation_map->end()){
@@ -282,28 +290,28 @@ uint16_t Thistlethwaite::phase1_check(BasicCube* cube){
     return number;
 }
 
-uint16_t Thistlethwaite::phase2_check(BasicCube* cube){
+uint16_t Thistlethwaite::phase2_check(BasicCube3* cube){
     // uint16_t number = 0;
 
     // Side side0 = (*cube->side_left)[0][0].side_destination;
     // number += (side0 != Side::Left && side0 != Side::Right);
-    // side0 = (*cube->side_left)[0][CUBE_SIZE-1].side_destination;
+    // side0 = (*cube->side_left)[0][CUBE_SIZE_3-1].side_destination;
     // number += (side0 != Side::Left && side0 != Side::Right);
-    // side0 = (*cube->side_left)[CUBE_SIZE-1][0].side_destination;
+    // side0 = (*cube->side_left)[CUBE_SIZE_3-1][0].side_destination;
     // number += (side0 != Side::Left && side0 != Side::Right);
-    // side0 = (*cube->side_left)[CUBE_SIZE-1][CUBE_SIZE-1].side_destination;
+    // side0 = (*cube->side_left)[CUBE_SIZE_3-1][CUBE_SIZE_3-1].side_destination;
     // number += (side0 != Side::Left && side0 != Side::Right);
 
     // side0 = (*cube->side_right)[0][0].side_destination;
     // number += (side0 != Side::Left && side0 != Side::Right);
-    // side0 = (*cube->side_right)[0][CUBE_SIZE-1].side_destination;
+    // side0 = (*cube->side_right)[0][CUBE_SIZE_3-1].side_destination;
     // number += (side0 != Side::Left && side0 != Side::Right);
-    // side0 = (*cube->side_right)[CUBE_SIZE-1][0].side_destination;
+    // side0 = (*cube->side_right)[CUBE_SIZE_3-1][0].side_destination;
     // number += (side0 != Side::Left && side0 != Side::Right);
-    // side0 = (*cube->side_right)[CUBE_SIZE-1][CUBE_SIZE-1].side_destination;
+    // side0 = (*cube->side_right)[CUBE_SIZE_3-1][CUBE_SIZE_3-1].side_destination;
     // number += (side0 != Side::Left && side0 != Side::Right);
 
-    // Side side1 = (*cube->side_up)[CUBE_SIZE-1][1].side_destination;
+    // Side side1 = (*cube->side_up)[CUBE_SIZE_3-1][1].side_destination;
     // Side side2 = (*cube->side_front)[0][1].side_destination;
     // // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     // if(std::find(this->edge_slice_Y.begin(), this->edge_slice_Y.end(), std::make_pair(side1, side2)) == this->edge_slice_Y.end() &&
@@ -312,7 +320,7 @@ uint16_t Thistlethwaite::phase2_check(BasicCube* cube){
     //     // std::cout << "case 1" << std::endl;
     // }
 
-    // side1 = (*cube->side_front)[CUBE_SIZE-1][1].side_destination;
+    // side1 = (*cube->side_front)[CUBE_SIZE_3-1][1].side_destination;
     // side2 = (*cube->side_down)[0][1].side_destination;
     // // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     // if(std::find(this->edge_slice_Y.begin(), this->edge_slice_Y.end(), std::make_pair(side1, side2)) == this->edge_slice_Y.end() &&
@@ -321,8 +329,8 @@ uint16_t Thistlethwaite::phase2_check(BasicCube* cube){
     //     // std::cout << "case 2" << std::endl;
     // }
 
-    // side1 = (*cube->side_down)[CUBE_SIZE-1][1].side_destination;
-    // side2 = (*cube->side_back)[CUBE_SIZE-1][1].side_destination;
+    // side1 = (*cube->side_down)[CUBE_SIZE_3-1][1].side_destination;
+    // side2 = (*cube->side_back)[CUBE_SIZE_3-1][1].side_destination;
     // // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     // if(std::find(this->edge_slice_Y.begin(), this->edge_slice_Y.end(), std::make_pair(side1, side2)) == this->edge_slice_Y.end() &&
     //         std::find(this->edge_slice_Y.begin(), this->edge_slice_Y.end(), std::make_pair(side2, side1)) == this->edge_slice_Y.end()){
@@ -348,28 +356,28 @@ uint16_t Thistlethwaite::phase2_check(BasicCube* cube){
     return phase2_table[index_edges][index_corners] != 0;
 }
 
-uint16_t Thistlethwaite::phase3_check(BasicCube* cube){
+uint16_t Thistlethwaite::phase3_check(BasicCube3* cube){
     // uint16_t number = this->phase2_check(cube);
 
     // Side side0 = (*cube->side_front)[0][0].side_destination;
     // number += (side0 != Side::Front && side0 != Side::Back);
-    // side0 = (*cube->side_front)[0][CUBE_SIZE-1].side_destination;
+    // side0 = (*cube->side_front)[0][CUBE_SIZE_3-1].side_destination;
     // number += (side0 != Side::Front && side0 != Side::Back);
-    // side0 = (*cube->side_front)[CUBE_SIZE-1][0].side_destination;
+    // side0 = (*cube->side_front)[CUBE_SIZE_3-1][0].side_destination;
     // number += (side0 != Side::Front && side0 != Side::Back);
-    // side0 = (*cube->side_front)[CUBE_SIZE-1][CUBE_SIZE-1].side_destination;
+    // side0 = (*cube->side_front)[CUBE_SIZE_3-1][CUBE_SIZE_3-1].side_destination;
     // number += (side0 != Side::Front && side0 != Side::Back);
 
     // side0 = (*cube->side_back)[0][0].side_destination;
     // number += (side0 != Side::Front && side0 != Side::Back);
-    // side0 = (*cube->side_back)[0][CUBE_SIZE-1].side_destination;
+    // side0 = (*cube->side_back)[0][CUBE_SIZE_3-1].side_destination;
     // number += (side0 != Side::Front && side0 != Side::Back);
-    // side0 = (*cube->side_back)[CUBE_SIZE-1][0].side_destination;
+    // side0 = (*cube->side_back)[CUBE_SIZE_3-1][0].side_destination;
     // number += (side0 != Side::Front && side0 != Side::Back);
-    // side0 = (*cube->side_back)[CUBE_SIZE-1][CUBE_SIZE-1].side_destination;
+    // side0 = (*cube->side_back)[CUBE_SIZE_3-1][CUBE_SIZE_3-1].side_destination;
     // number += (side0 != Side::Front && side0 != Side::Back);
 
-    // Side side1 = (*cube->side_left)[1][CUBE_SIZE-1].side_destination;
+    // Side side1 = (*cube->side_left)[1][CUBE_SIZE_3-1].side_destination;
     // Side side2 = (*cube->side_front)[1][0].side_destination;
     // // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     // if(std::find(this->edge_slice_X.begin(), this->edge_slice_X.end(), std::make_pair(side1, side2)) == this->edge_slice_X.end() &&
@@ -378,7 +386,7 @@ uint16_t Thistlethwaite::phase3_check(BasicCube* cube){
     //     // std::cout << "case 1" << std::endl;
     // }
 
-    // side1 = (*cube->side_front)[1][CUBE_SIZE-1].side_destination;
+    // side1 = (*cube->side_front)[1][CUBE_SIZE_3-1].side_destination;
     // side2 = (*cube->side_right)[1][0].side_destination;
     // // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     // if(std::find(this->edge_slice_X.begin(), this->edge_slice_X.end(), std::make_pair(side1, side2)) == this->edge_slice_X.end() &&
@@ -387,8 +395,8 @@ uint16_t Thistlethwaite::phase3_check(BasicCube* cube){
     //     // std::cout << "case 2" << std::endl;
     // }
 
-    // side1 = (*cube->side_right)[1][CUBE_SIZE-1].side_destination;
-    // side2 = (*cube->side_back)[1][CUBE_SIZE-1].side_destination;
+    // side1 = (*cube->side_right)[1][CUBE_SIZE_3-1].side_destination;
+    // side2 = (*cube->side_back)[1][CUBE_SIZE_3-1].side_destination;
     // // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     // if(std::find(this->edge_slice_X.begin(), this->edge_slice_X.end(), std::make_pair(side1, side2)) == this->edge_slice_X.end() &&
     //         std::find(this->edge_slice_X.begin(), this->edge_slice_X.end(), std::make_pair(side2, side1)) == this->edge_slice_X.end()){
@@ -408,23 +416,23 @@ uint16_t Thistlethwaite::phase3_check(BasicCube* cube){
 
     // side0 = (*cube->side_up)[0][0].side_destination;
     // number += (side0 != Side::Up && side0 != Side::Down);
-    // side0 = (*cube->side_up)[0][CUBE_SIZE-1].side_destination;
+    // side0 = (*cube->side_up)[0][CUBE_SIZE_3-1].side_destination;
     // number += (side0 != Side::Up && side0 != Side::Down);
-    // side0 = (*cube->side_up)[CUBE_SIZE-1][0].side_destination;
+    // side0 = (*cube->side_up)[CUBE_SIZE_3-1][0].side_destination;
     // number += (side0 != Side::Up && side0 != Side::Down);
-    // side0 = (*cube->side_up)[CUBE_SIZE-1][CUBE_SIZE-1].side_destination;
+    // side0 = (*cube->side_up)[CUBE_SIZE_3-1][CUBE_SIZE_3-1].side_destination;
     // number += (side0 != Side::Up && side0 != Side::Down);
 
     // side0 = (*cube->side_down)[0][0].side_destination;
     // number += (side0 != Side::Up && side0 != Side::Down);
-    // side0 = (*cube->side_down)[0][CUBE_SIZE-1].side_destination;
+    // side0 = (*cube->side_down)[0][CUBE_SIZE_3-1].side_destination;
     // number += (side0 != Side::Up && side0 != Side::Down);
-    // side0 = (*cube->side_down)[CUBE_SIZE-1][0].side_destination;
+    // side0 = (*cube->side_down)[CUBE_SIZE_3-1][0].side_destination;
     // number += (side0 != Side::Up && side0 != Side::Down);
-    // side0 = (*cube->side_down)[CUBE_SIZE-1][CUBE_SIZE-1].side_destination;
+    // side0 = (*cube->side_down)[CUBE_SIZE_3-1][CUBE_SIZE_3-1].side_destination;
     // number += (side0 != Side::Up && side0 != Side::Down);
 
-    // side1 = (*cube->side_up)[1][CUBE_SIZE-1].side_destination;
+    // side1 = (*cube->side_up)[1][CUBE_SIZE_3-1].side_destination;
     // side2 = (*cube->side_right)[0][1].side_destination;
     // // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     // if(std::find(this->edge_slice_Z.begin(), this->edge_slice_Z.end(), std::make_pair(side1, side2)) == this->edge_slice_Z.end() &&
@@ -433,8 +441,8 @@ uint16_t Thistlethwaite::phase3_check(BasicCube* cube){
     //     // std::cout << "case 1" << std::endl;
     // }
 
-    // side1 = (*cube->side_right)[CUBE_SIZE-1][1].side_destination;
-    // side2 = (*cube->side_down)[1][CUBE_SIZE-1].side_destination;
+    // side1 = (*cube->side_right)[CUBE_SIZE_3-1][1].side_destination;
+    // side2 = (*cube->side_down)[1][CUBE_SIZE_3-1].side_destination;
     // // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     // if(std::find(this->edge_slice_Z.begin(), this->edge_slice_Z.end(), std::make_pair(side1, side2)) == this->edge_slice_Z.end() &&
     //         std::find(this->edge_slice_Z.begin(), this->edge_slice_Z.end(), std::make_pair(side2, side1)) == this->edge_slice_Z.end()){
@@ -443,7 +451,7 @@ uint16_t Thistlethwaite::phase3_check(BasicCube* cube){
     // }
 
     // side1 = (*cube->side_down)[1][0].side_destination;
-    // side2 = (*cube->side_left)[CUBE_SIZE-1][1].side_destination;
+    // side2 = (*cube->side_left)[CUBE_SIZE_3-1][1].side_destination;
     // // std::cout << side_to_char(side1) << ", " << side_to_char(side2) << std::endl;
     // if(std::find(this->edge_slice_Z.begin(), this->edge_slice_Z.end(), std::make_pair(side1, side2)) == this->edge_slice_Z.end() &&
     //         std::find(this->edge_slice_Z.begin(), this->edge_slice_Z.end(), std::make_pair(side2, side1)) == this->edge_slice_Z.end()){
@@ -468,13 +476,13 @@ uint16_t Thistlethwaite::phase3_check(BasicCube* cube){
     return phase3_table[id_c][id_e] != 0;
 }
 
-uint16_t Thistlethwaite::phase4_check(BasicCube* cube){
+uint16_t Thistlethwaite::phase4_check(BasicCube3* cube){
     return cube->check_solution() != 0;
 }
 
 Thistlethwaite::~Thistlethwaite(){
     while(!current_cubes->empty()){
-        BasicCube* cube = current_cubes->top();
+        BasicCube3* cube = current_cubes->top();
         current_cubes->pop();
         delete cube;
     }
@@ -498,7 +506,7 @@ Thistlethwaite::~Thistlethwaite(){
     delete edge_orientation_map;
 }
 
-uint16_t Thistlethwaite::corner_orientations(BasicCube* cube){
+uint16_t Thistlethwaite::corner_orientations(BasicCube3* cube){
     uint16_t number = 0;
 
     // check left-up corner on left side (L-B-U)
@@ -508,43 +516,43 @@ uint16_t Thistlethwaite::corner_orientations(BasicCube* cube){
 
     // check right-down corner on left side (L-F-D)
     number = corner_orientation_value(number,
-                                      (*cube->side_down)[CUBE_SIZE - 1][0].side_destination,
-                                      (*cube->side_front)[CUBE_SIZE - 1][0].side_destination);
+                                      (*cube->side_down)[CUBE_SIZE_3 - 1][0].side_destination,
+                                      (*cube->side_front)[CUBE_SIZE_3 - 1][0].side_destination);
 
     // check right-down corner on right side (R-B-D)
     number = corner_orientation_value(number,
-                                      (*cube->side_down)[0][CUBE_SIZE - 1].side_destination,
-                                      (*cube->side_back)[CUBE_SIZE - 1][CUBE_SIZE - 1].side_destination); // suspicious
+                                      (*cube->side_down)[0][CUBE_SIZE_3 - 1].side_destination,
+                                      (*cube->side_back)[CUBE_SIZE_3 - 1][CUBE_SIZE_3 - 1].side_destination); // suspicious
 
     // check left-up corner on right side (R-F-U)
     number = corner_orientation_value(number,
-                                      (*cube->side_up)[CUBE_SIZE - 1][CUBE_SIZE - 1].side_destination,
-                                      (*cube->side_front)[0][CUBE_SIZE - 1].side_destination);
+                                      (*cube->side_up)[CUBE_SIZE_3 - 1][CUBE_SIZE_3 - 1].side_destination,
+                                      (*cube->side_front)[0][CUBE_SIZE_3 - 1].side_destination);
 
     // check right-up corner on left side (L-F-U)
     number = corner_orientation_value(number,
                                       (*cube->side_front)[0][0].side_destination,
-                                      (*cube->side_up)[CUBE_SIZE - 1][0].side_destination);
+                                      (*cube->side_up)[CUBE_SIZE_3 - 1][0].side_destination);
 
     // check left-down corner on left side (L-B-D)
     number = corner_orientation_value(number,
-                                      (*cube->side_back)[CUBE_SIZE - 1][0].side_destination,
+                                      (*cube->side_back)[CUBE_SIZE_3 - 1][0].side_destination,
                                       (*cube->side_down)[0][0].side_destination);
 
     // check left-down corner on right side (R-F-D)
     number = corner_orientation_value(number,
-                                      (*cube->side_front)[CUBE_SIZE - 1][CUBE_SIZE - 1].side_destination,
-                                      (*cube->side_down)[CUBE_SIZE - 1][CUBE_SIZE - 1].side_destination);
+                                      (*cube->side_front)[CUBE_SIZE_3 - 1][CUBE_SIZE_3 - 1].side_destination,
+                                      (*cube->side_down)[CUBE_SIZE_3 - 1][CUBE_SIZE_3 - 1].side_destination);
 
     // check right-up corner on right side (R-B-U)
     number = corner_orientation_value(number,
-                                      (*cube->side_back)[0][CUBE_SIZE - 1].side_destination,
-                                      (*cube->side_up)[0][CUBE_SIZE - 1].side_destination);
+                                      (*cube->side_back)[0][CUBE_SIZE_3 - 1].side_destination,
+                                      (*cube->side_up)[0][CUBE_SIZE_3 - 1].side_destination);
     
     return number;
 }
 
-uint16_t Thistlethwaite::edge_slice_permutation(BasicCube* cube, std::array<std::pair<Side, Side>, 4>* edge_slice){
+uint16_t Thistlethwaite::edge_slice_permutation(BasicCube3* cube, std::array<std::pair<Side, Side>, 4>* edge_slice){
     uint16_t number = 0;
 
     // slice Z ///////////////
@@ -558,19 +566,19 @@ uint16_t Thistlethwaite::edge_slice_permutation(BasicCube* cube, std::array<std:
     // check down-left edge
     number = edge_permutation_value(number,
                                     (*cube->side_down)[1][0].side_destination,
-                                    (*cube->side_left)[CUBE_SIZE - 1][1].side_destination,
+                                    (*cube->side_left)[CUBE_SIZE_3 - 1][1].side_destination,
                                     edge_slice);
 
     // check right-down edge
     number = edge_permutation_value(number,
-                                    (*cube->side_right)[CUBE_SIZE - 1][1].side_destination,
-                                    (*cube->side_down)[1][CUBE_SIZE - 1].side_destination,
+                                    (*cube->side_right)[CUBE_SIZE_3 - 1][1].side_destination,
+                                    (*cube->side_down)[1][CUBE_SIZE_3 - 1].side_destination,
                                     edge_slice);
 
     // check up-right edge
     number = edge_permutation_value(number,
                                     (*cube->side_right)[0][1].side_destination,
-                                    (*cube->side_up)[1][CUBE_SIZE - 1].side_destination,
+                                    (*cube->side_up)[1][CUBE_SIZE_3 - 1].side_destination,
                                     edge_slice);
 
     // slice X ///////////////
@@ -584,19 +592,19 @@ uint16_t Thistlethwaite::edge_slice_permutation(BasicCube* cube, std::array<std:
     // check left-front edge
     number = edge_permutation_value(number,
                                     (*cube->side_front)[1][0].side_destination,
-                                    (*cube->side_left)[1][CUBE_SIZE - 1].side_destination,
+                                    (*cube->side_left)[1][CUBE_SIZE_3 - 1].side_destination,
                                     edge_slice);
 
     // check right-front edge
     number = edge_permutation_value(number,
-                                    (*cube->side_front)[1][CUBE_SIZE - 1].side_destination,
+                                    (*cube->side_front)[1][CUBE_SIZE_3 - 1].side_destination,
                                     (*cube->side_right)[1][0].side_destination,
                                     edge_slice);
 
     // check right-back edge
     number = edge_permutation_value(number,
-                                    (*cube->side_back)[1][CUBE_SIZE - 1].side_destination,
-                                    (*cube->side_right)[1][CUBE_SIZE - 1].side_destination,
+                                    (*cube->side_back)[1][CUBE_SIZE_3 - 1].side_destination,
+                                    (*cube->side_right)[1][CUBE_SIZE_3 - 1].side_destination,
                                     edge_slice);
 
     // slice Y ///////////////
@@ -604,18 +612,18 @@ uint16_t Thistlethwaite::edge_slice_permutation(BasicCube* cube, std::array<std:
     // check up-front edge
     number = edge_permutation_value(number,
                                     (*cube->side_front)[0][1].side_destination,
-                                    (*cube->side_up)[CUBE_SIZE - 1][1].side_destination,
+                                    (*cube->side_up)[CUBE_SIZE_3 - 1][1].side_destination,
                                     edge_slice);
 
     // check down-front edge
     number = edge_permutation_value(number,
-                                    (*cube->side_front)[CUBE_SIZE-1][1].side_destination,
-                                    (*cube->side_down)[CUBE_SIZE - 1][1].side_destination,
+                                    (*cube->side_front)[CUBE_SIZE_3-1][1].side_destination,
+                                    (*cube->side_down)[CUBE_SIZE_3 - 1][1].side_destination,
                                     edge_slice);
 
     // check down-back edge
     number = edge_permutation_value(number,
-                                    (*cube->side_back)[CUBE_SIZE-1][1].side_destination,
+                                    (*cube->side_back)[CUBE_SIZE_3-1][1].side_destination,
                                     (*cube->side_down)[0][1].side_destination,
                                     edge_slice);
 
@@ -631,7 +639,7 @@ uint16_t Thistlethwaite::edge_slice_permutation(BasicCube* cube, std::array<std:
 
 int Thistlethwaite::clear_current_cubes(){
     while(!this->current_cubes->empty()){
-        BasicCube* cube = this->current_cubes->top();
+        BasicCube3* cube = this->current_cubes->top();
         this->current_cubes->pop();
         delete cube;
     }
@@ -639,20 +647,24 @@ int Thistlethwaite::clear_current_cubes(){
 }
 
 int Thistlethwaite::bfs(std::vector<Move*>* allowed_moves,
-                        uint16_t (Thistlethwaite::*check_function)(BasicCube*),
-                        uint16_t (Thistlethwaite::*get_table_offset)(BasicCube*),
+                        uint16_t (Thistlethwaite::*check_function)(BasicCube3*),
+                        uint16_t (Thistlethwaite::*get_table_offset)(BasicCube3*),
                         uint16_t max_depth){
 
     if(this->current_cubes->empty()){
+#ifndef NO_LOG
         std::cout << "ERROR: bfs start with empty current_cubes" << std::endl;
+#endif
         return -1;
     }
 
-    BasicCube* base_cube = this->current_cubes->top();
+    BasicCube3* base_cube = this->current_cubes->top();
     current_cubes->pop();
+#ifndef NO_LOG
     if(!current_cubes->empty()){
         std::cout << "current cubes had more thatn 1 cube at start, that's wrong for now" << std::endl;
     }
+#endif
 
     if(!(this->*check_function)(base_cube)){
         this->clear_current_cubes();
@@ -660,15 +672,17 @@ int Thistlethwaite::bfs(std::vector<Move*>* allowed_moves,
         return 0;
     }
 
-
+#ifndef NO_LOG
     uint64_t current_depth = base_cube->solution_length;
+#endif
 
     for(uint16_t current_max_depth = 1; current_max_depth <= max_depth; current_max_depth++){
-        this->current_cubes->push(new BasicCube(base_cube));
+        this->current_cubes->push(new BasicCube3(base_cube));
         while(!this->current_cubes->empty()){
-            BasicCube* cube = this->current_cubes->top();
+            BasicCube3* cube = this->current_cubes->top();
             this->current_cubes->pop();
 
+#ifndef NO_LOG
             if(cube->solution_length > current_depth){
                 current_depth = cube->solution_length;
                 std::cout << "Current depth: " << current_depth << std::endl;
@@ -676,13 +690,15 @@ int Thistlethwaite::bfs(std::vector<Move*>* allowed_moves,
                 // delete cube;
                 // return -1;
             }
+
+#endif
             for(auto move : *allowed_moves){
                 if(cube->solution_length > 0 &&
                     !check_move_sanity(cube->solution_path->back(), move)){
                     continue;
                 }
                 // std::cout << move->to_string() << std::endl;
-                BasicCube* new_cube = new BasicCube(cube);
+                BasicCube3* new_cube = new BasicCube3(cube);
                 new_cube->rotate(move);
 
                 // if(new_cube->temp_length > max_depth){
@@ -727,25 +743,31 @@ int Thistlethwaite::bfs(std::vector<Move*>* allowed_moves,
 
     delete base_cube;
 
+#ifndef NO_LOG
     std::cout << "ERROR: bfs end with empty current_cubes" << std::endl;
+#endif
     return 0;
 }
 
 int Thistlethwaite::generate_table_phase_1(){
     std::ifstream file(PHASE_1_TABLE_DIR_NAME);
     if(file.is_open()){// 'cached' table found
+#ifndef NO_LOG
         std::cout << "Retreiving cached table for phase 1" << std::endl;
+#endif
         int value;
         for(size_t id = 0; id < 2048; id++){
             file >> value;
-            phase1_table[id] = (uint8_t)value;
+            phase1_table[id] = (size_t)value;
         }
     }
     else{ // 'cached' table not found
         // need to generate table
+#ifndef NO_LOG
         std::cout << "Generating & cacheing table for phase 1" << std::endl;
-        BasicCube* cube = new BasicCube();
-        std::stack<BasicCube*> cubes = std::stack<BasicCube*>();
+#endif
+        BasicCube3* cube = new BasicCube3();
+        std::stack<BasicCube3*> cubes = std::stack<BasicCube3*>();
         cubes.push(cube);
 
         // cubes that are not achievable in 8 moves
@@ -766,7 +788,7 @@ int Thistlethwaite::generate_table_phase_1(){
                     continue;
                 }
 
-                BasicCube* child = new BasicCube(cube);
+                BasicCube3* child = new BasicCube3(cube);
                 child->rotate(move);
                 
                 uint16_t index = this->edge_orientation(child);
@@ -791,7 +813,9 @@ int Thistlethwaite::generate_table_phase_1(){
         for(size_t id = 0; id < 2048; id++){
             file << (int)phase1_table[id] << std::endl;
         }
+#ifndef NO_LOG
         std::cout << "Table 1 generted & cached" << std::endl;
+#endif
     }
     return 0;
 }
@@ -799,20 +823,24 @@ int Thistlethwaite::generate_table_phase_1(){
 int Thistlethwaite::generate_table_phase_2(){
     std::ifstream file(PHASE_2_TABLE_DIR_NAME);
     if(file.is_open()){// 'cached' table found
+#ifndef NO_LOG
         std::cout << "Retreiving cached table for phase 2" << std::endl;
+#endif
         int value;
         for(size_t id_c = 0; id_c < 495; id_c++){
             for(size_t id_e = 0; id_e < 2187; id_e++){
                 file >> value;
-                phase2_table[id_c][id_e] = (uint8_t)value;
+                phase2_table[id_c][id_e] = (size_t)value;
             }
         }
     }
     else{ // 'cached' table not found
         // need to generate table
+#ifndef NO_LOG
         std::cout << "Generating & cacheing table for phase 2" << std::endl;
-        BasicCube* cube = new BasicCube();
-        std::stack<BasicCube*> cubes = std::stack<BasicCube*>();
+#endif
+        BasicCube3* cube = new BasicCube3();
+        std::stack<BasicCube3*> cubes = std::stack<BasicCube3*>();
         cubes.push(cube);
 
         // cubes that are not achievable in 8 moves
@@ -835,7 +863,7 @@ int Thistlethwaite::generate_table_phase_2(){
                     continue;
                 }
 
-                BasicCube* child = new BasicCube(cube);
+                BasicCube3* child = new BasicCube3(cube);
                 child->rotate(move);
                 
                 uint16_t index_corners = corner_orientations_to_id(
@@ -873,7 +901,9 @@ int Thistlethwaite::generate_table_phase_2(){
                 // map[phase2_table[id_c][id_e]]++;
             }
         }
+#ifndef NO_LOG
         std::cout << "Table 2 generted & cached" << std::endl;
+#endif
         // for(size_t i = 0; i < 10; i++){
         //     std::cout << i << ": " << map[i] << std::endl;
         // }
@@ -884,12 +914,14 @@ int Thistlethwaite::generate_table_phase_2(){
 int Thistlethwaite::generate_table_phase_3(){
     std::ifstream file(PHASE_3_TABLE_DIR_NAME);
     if(file.is_open()){// 'cached' table found
+#ifndef NO_LOG
         std::cout << "Retreiving cached table for phase 3" << std::endl;
+#endif
         int value;
         for(size_t id_c = 0; id_c < 40320; id_c++){
             for(size_t id_e = 0; id_e < 70; id_e++){
                 file >> value;
-                phase3_table[id_c][id_e] = (uint8_t)value;
+                phase3_table[id_c][id_e] = (size_t)value;
                 // if(value != PHASE_3_DEPTH + 1){
                 //     std::cout << "Reading: " << value << std::endl;
                 // }
@@ -898,12 +930,14 @@ int Thistlethwaite::generate_table_phase_3(){
     }
     else{ // 'cached' table not found
         // need to generate table
+#ifndef NO_LOG
         std::cout << "Generating & cacheing table for phase 3" << std::endl;
+#endif
         this->initialize_phase_3_initial_cubes();
 
-        std::stack<BasicCube*> cubes = std::stack<BasicCube*>();
-        for(BasicCube* cube : this->phase_3_table_initial_cubes){
-            BasicCube* temp = new BasicCube(cube);
+        std::stack<BasicCube3*> cubes = std::stack<BasicCube3*>();
+        for(BasicCube3* cube : this->phase_3_table_initial_cubes){
+            BasicCube3* temp = new BasicCube3(cube);
             cubes.push(temp);
         }
 
@@ -919,7 +953,7 @@ int Thistlethwaite::generate_table_phase_3(){
         }
 
         while(!cubes.empty()){
-            BasicCube* cube = cubes.top();
+            BasicCube3* cube = cubes.top();
             cubes.pop();
 
             for(auto move: this->moves_p3){
@@ -929,7 +963,7 @@ int Thistlethwaite::generate_table_phase_3(){
                     continue;
                 }
 
-                BasicCube* child = new BasicCube(cube);
+                BasicCube3* child = new BasicCube3(cube);
                 child->rotate(move);
 
                 uint32_t id_c = corner_permutation_to_id(this->corner_permutation(child));
@@ -962,8 +996,9 @@ int Thistlethwaite::generate_table_phase_3(){
                 file << (int)phase3_table[id_c][id_e] << std::endl;
             }
         }
+#ifndef NO_LOG
         std::cout << "Table 3 generted & cached" << std::endl;
-
+#endif
     }
     return 0;
 }
@@ -971,14 +1006,16 @@ int Thistlethwaite::generate_table_phase_3(){
 int Thistlethwaite::generate_table_phase_4(){
     std::ifstream file(PHASE_4_TABLE_DIR_NAME);
     if(file.is_open()){// 'cached' table found
+#ifndef NO_LOG
         std::cout << "Retrieving cached table for phase 4" << std::endl;
+#endif
         int value;
         for(size_t id_c = 0; id_c < 96; id_c++){
             for(size_t id_e_slice_x = 0; id_e_slice_x < 24; id_e_slice_x++){
                 for(size_t id_e_slice_y = 0; id_e_slice_y < 24; id_e_slice_y++){
                     for(size_t id_e_slice_z = 0; id_e_slice_z < 24; id_e_slice_z++){
                         file >> value;
-                        phase4_table[id_c][id_e_slice_x][id_e_slice_y][id_e_slice_z] = (uint8_t)value;
+                        phase4_table[id_c][id_e_slice_x][id_e_slice_y][id_e_slice_z] = (size_t)value;
                         // if(value != PHASE_4_DEPTH + 1){
                         //     std::cout << "Reading: " << value << std::endl;
                         // }
@@ -989,10 +1026,12 @@ int Thistlethwaite::generate_table_phase_4(){
     }
     else{ // 'cached' table not found
         // need to generate table
+#ifndef NO_LOG
         std::cout << "Generating & cacheing table for phase 4" << std::endl;
+#endif
 
-        std::stack<BasicCube*> cubes = std::stack<BasicCube*>();
-        cubes.push(new BasicCube());
+        std::stack<BasicCube3*> cubes = std::stack<BasicCube3*>();
+        cubes.push(new BasicCube3());
 
         for(size_t id_c = 0; id_c < 96; id_c++){
             for(size_t id_e_slice_x = 0; id_e_slice_x < 24; id_e_slice_x++){
@@ -1005,7 +1044,7 @@ int Thistlethwaite::generate_table_phase_4(){
         }
 
         while(!cubes.empty()){
-            BasicCube* cube = cubes.top();
+            BasicCube3* cube = cubes.top();
             cubes.pop();
 
             for(auto move: this->moves_p4){
@@ -1015,7 +1054,7 @@ int Thistlethwaite::generate_table_phase_4(){
                     continue;
                 }
 
-                BasicCube* child = new BasicCube(cube);
+                BasicCube3* child = new BasicCube3(cube);
                 child->rotate(move);
 
 
@@ -1061,8 +1100,9 @@ int Thistlethwaite::generate_table_phase_4(){
                 }
             }
         }
+#ifndef NO_LOG
         std::cout << "Table 4 generted & cached" << std::endl;
-
+#endif
     }
     return 0;
 }
@@ -1072,19 +1112,25 @@ int Thistlethwaite::solve(){
               &Thistlethwaite::phase1_check,
               &Thistlethwaite::get_table_1_offset,
               PHASE_1_MAX_NO_OF_MOVES);
+#ifndef NO_LOG
     std::cout << "End of phase 1" << std::endl;
     std::cout << "number of skipped cubes: " << temp_debug_value << std::endl;
+#endif
     temp_debug_value = 0;
     // std::cout << this->current_cubes->empty() << std::endl;
     if(!this->current_cubes->empty()){
         this->current_cubes->top()->temp_length=0;
+#ifndef NO_LOG
         // this->current_cubes->top()->print_cube();
         // this->current_cubes->top()->print_solution_path();
         // std::cout << this->phase1_check(this->current_cubes->top()) << std::endl;
         std::cout << "solution path length: " << this->current_cubes->top()->solution_length << " == " << this->current_cubes->top()->solution_path->size() << std::endl;
+#endif
     }
     else{
+#ifndef NO_LOG
         std::cout << "Error after phase 1" << std::endl;
+#endif
         return 1;
     }
 
@@ -1092,19 +1138,25 @@ int Thistlethwaite::solve(){
               &Thistlethwaite::phase2_check,
               &Thistlethwaite::get_table_2_offset,
               PHASE_2_MAX_NO_OF_MOVES);
+#ifndef NO_LOG
     std::cout << "End of phase 2" << std::endl;
     std::cout << "number of skipped cubes: " << temp_debug_value << std::endl;
+#endif
     // std::cout << this->current_cubes->empty() << std::endl;
     temp_debug_value = 0;
     if(!this->current_cubes->empty()){
         this->current_cubes->top()->temp_length=0;
+#ifndef NO_LOG
         // this->current_cubes->top()->print_cube();
         // this->current_cubes->top()->print_solution_path();
         // std::cout << this->phase2_check(this->current_cubes->top()) << std::endl;
         std::cout << "solution path length: " << this->current_cubes->top()->solution_length << " == " << this->current_cubes->top()->solution_path->size() << std::endl;
+#endif
     }
     else{
+#ifndef NO_LOG
         std::cout << "Error after phase 2" << std::endl;
+#endif
         return 1;
     }
 
@@ -1112,64 +1164,90 @@ int Thistlethwaite::solve(){
               &Thistlethwaite::phase3_check,
               &Thistlethwaite::get_table_3_offset,
               PHASE_3_MAX_NO_OF_MOVES);
+#ifndef NO_LOG
     std::cout << "End of phase 3" << std::endl;
     std::cout << "number of skipped cubes: " << temp_debug_value << std::endl;
+#endif
     temp_debug_value = 0;
     // std::cout << this->current_cubes->empty() << std::endl;
     if(!this->current_cubes->empty()){
         this->current_cubes->top()->temp_length=0;
+#ifndef NO_LOG
         // this->current_cubes->top()->print_cube();
         // this->current_cubes->top()->print_solution_path();
         // std::cout << this->phase3_check(this->current_cubes->top()) << std::endl;
         std::cout << "solution path length: " << this->current_cubes->top()->solution_length << " == " << this->current_cubes->top()->solution_path->size() << std::endl;
+#endif
     }
     else{
+#ifndef NO_LOG
         std::cout << "Error after phase 3" << std::endl;
+#endif
         return 1;
     }
     this->bfs(&moves_p4,
              &Thistlethwaite::phase4_check,
              &Thistlethwaite::get_table_4_offset,
              PHASE_4_MAX_NO_OF_MOVES);
+#ifndef NO_LOG
     std::cout << "End of phase 4" << std::endl;
     std::cout << "number of skipped cubes: " << temp_debug_value << std::endl;
+#endif
     temp_debug_value = 0;
     // std::cout << this->current_cubes->empty() << std::endl;
     if(!this->current_cubes->empty()){
         this->current_cubes->top()->temp_length=0;
+#ifndef NO_LOG
         // this->current_cubes->top()->print_cube();
         // this->current_cubes->top()->print_solution_path();
         // std::cout << this->phase4_check(this->current_cubes->top()) << std::endl;
         std::cout << "solution path length: " << this->current_cubes->top()->solution_length << " == " << this->current_cubes->top()->solution_path->size() << std::endl;
+#endif
         this->solved_cube = this->current_cubes->top();
         this->current_cubes->pop();    
     }
     else{
+#ifndef NO_LOG
         std::cout << "Error after phase 4" << std::endl;
+#endif
         return 1;
     }
+
+    for(auto move : *this->solved_cube->solution_path){
+        this->previous_moves->push_back(new Move(move));
+    }
+    this->solved_cube->clear_solution_path();
+    this->solved_cube->solution_length += this->previous_moves_count;
+    for(auto move : *this->previous_moves){
+        this->solved_cube->solution_path->push_back(new Move(move));
+    }
+    for(auto move : *this->previous_moves){
+        delete move;
+    }
+    delete this->previous_moves;
+    this->previous_moves = new std::vector<Move*>();
 
     return 0;
 }
 
-uint16_t Thistlethwaite::get_table_1_offset(BasicCube *cube){
+uint16_t Thistlethwaite::get_table_1_offset(BasicCube3 *cube){
     uint16_t index = this->edge_orientation(cube);
     return phase1_table[index];
 }
 
-uint16_t Thistlethwaite::get_table_2_offset(BasicCube *cube){
+uint16_t Thistlethwaite::get_table_2_offset(BasicCube3 *cube){
     uint16_t index_corners = corner_orientations_to_id(this->corner_orientations(cube));
     uint16_t index_edges = edge_permutation_slice_Y_to_id(this->edge_slice_permutation(cube, &this->edge_slice_Y));
     return this->phase2_table[index_edges][index_corners];
 }
 
-uint16_t Thistlethwaite::get_table_3_offset(BasicCube *cube){
+uint16_t Thistlethwaite::get_table_3_offset(BasicCube3 *cube){
     uint32_t id_c = corner_permutation_to_id(this->corner_permutation(cube));
     uint16_t id_e = edge_permutation_slice_X_to_id(this->edge_slice_permutation(cube, &this->edge_slice_X));
     return this->phase3_table[id_c][id_e];
 }
 
-uint16_t Thistlethwaite::get_table_4_offset(BasicCube *cube){
+uint16_t Thistlethwaite::get_table_4_offset(BasicCube3 *cube){
     return this->phase4_table
                     [this->corner_permutation_to_id_phase4(corner_permutation_to_id(this->corner_permutation(cube)))]
                     [this->edge_slice_permutation_to_id(cube, this->edge_slice_X)]
@@ -1178,12 +1256,12 @@ uint16_t Thistlethwaite::get_table_4_offset(BasicCube *cube){
 }
 
 int Thistlethwaite::initialize_phase_3_initial_cubes(){
-    std::stack<BasicCube*> cubes = std::stack<BasicCube*>();
-    cubes.push(new BasicCube());
-    this->phase_3_table_initial_cubes[0] = new BasicCube();
+    std::stack<BasicCube3*> cubes = std::stack<BasicCube3*>();
+    cubes.push(new BasicCube3());
+    this->phase_3_table_initial_cubes[0] = new BasicCube3();
     size_t counter = 1;
     while(!cubes.empty()){
-        BasicCube* cube = cubes.top();
+        BasicCube3* cube = cubes.top();
         cubes.pop();
         for(auto move : this->moves_p3){
 
@@ -1192,7 +1270,7 @@ int Thistlethwaite::initialize_phase_3_initial_cubes(){
                 continue;
             }
 
-            BasicCube* child = new BasicCube(cube);
+            BasicCube3* child = new BasicCube3(cube);
             child->rotate(move);
 
             if(corners_in_orbits(child, this->corner_orbit)){
@@ -1205,7 +1283,7 @@ int Thistlethwaite::initialize_phase_3_initial_cubes(){
                     }
                 }
                 if(different){
-                    BasicCube* temp = new BasicCube(child);
+                    BasicCube3* temp = new BasicCube3(child);
                     temp->clear_solution_path();
                     this->phase_3_table_initial_cubes[counter] = temp;
                     counter++;
@@ -1231,7 +1309,7 @@ int Thistlethwaite::initialize_phase_3_initial_cubes(){
     return 0;
 }
 
-uint32_t Thistlethwaite::corner_permutation(BasicCube *cube){
+uint32_t Thistlethwaite::corner_permutation(BasicCube3 *cube){
     uint32_t value = 0;
     for(Side left_or_right : {Side::Left, Side::Right}){
         for(Side up_or_down : {Side::Up, Side::Down}){
@@ -1263,13 +1341,13 @@ uint32_t Thistlethwaite::corner_permutation_to_id_phase4(uint32_t number){
     if(!permutation_to_id_lookup_table_initialized_phase_4){
         permutation_to_id_lookup_table_initialized_phase_4 = true;
         std::vector<uint16_t> initial = std::vector<uint16_t>();
-        std::stack<BasicCube*> cubes = std::stack<BasicCube*>();
-        cubes.push(new BasicCube());
+        std::stack<BasicCube3*> cubes = std::stack<BasicCube3*>();
+        cubes.push(new BasicCube3());
 
 
         size_t counter = 0;
         while(!cubes.empty()){
-            BasicCube* cube = cubes.top();
+            BasicCube3* cube = cubes.top();
             cubes.pop();
             for(auto move : this->moves_p4){
                 if(cube->solution_length > 0 &&
@@ -1277,7 +1355,7 @@ uint32_t Thistlethwaite::corner_permutation_to_id_phase4(uint32_t number){
                     continue;
                 }
 
-                BasicCube* child = new BasicCube(cube);
+                BasicCube3* child = new BasicCube3(cube);
                 child->rotate(move);
                 uint16_t corner_id = corner_permutation_to_id(this->corner_permutation(child));
                 if(corners_in_orbits(child, this->corner_orbit) &&
@@ -1295,12 +1373,14 @@ uint32_t Thistlethwaite::corner_permutation_to_id_phase4(uint32_t number){
             }
             delete cube;
         }
+#ifndef NO_LOG
         std::cout << "corner cubes ids: " << counter << std::endl;
+#endif
     }
     return permutation_to_id_lookup_table_phase_4[number];
 }
 
-uint16_t Thistlethwaite::edge_slice_permutation_to_id(BasicCube* cube, std::array<std::pair<Side, Side>, 4> edge_slice){
+uint16_t Thistlethwaite::edge_slice_permutation_to_id(BasicCube3* cube, std::array<std::pair<Side, Side>, 4> edge_slice){
     std::array<std::pair<Side, Side>, 4> destination_edge_slice = std::array<std::pair<Side, Side>, 4>();
     // std::cout << "Destiantion permutation (real for a time):" << std::endl;
     
@@ -1416,7 +1496,7 @@ uint16_t Thistlethwaite::edge_slice_permutation_to_id(BasicCube* cube, std::arra
     return 24;
 }
 
-uint16_t Thistlethwaite::edge_orientation(BasicCube* cube){
+uint16_t Thistlethwaite::edge_orientation(BasicCube3* cube){
     uint16_t number = this->phase1_check(cube);
     uint16_t value = 0;
     for(size_t i = 0; i < 12; i++){
@@ -1464,7 +1544,7 @@ static uint16_t corner_orientations_to_id(uint16_t number){
     // technically to count ths value for all bits this loop shoul go up to < 8,
     // however the last orientation is defined by the 7 others,
     // so there is no need to cout that
-    for(uint8_t i = 0; i < 7; i++){
+    for(size_t i = 0; i < 7; i++){
         index *= 3;
         index += number & 0b11;
         number = number >> 2;
@@ -1491,22 +1571,24 @@ static uint16_t edge_permutation_slice_Y_to_id(uint16_t permutation_value){
                 id++;
             }
         }
+#ifndef NO_LOG
         if(id != 495){
             std::cout << "wrong number of mapped permutations for phase 2" << std::endl;
             std::cout << id << std::endl;
         }
+#endif
     }
     return permutation_to_id_lookup_table_phase_2[permutation_value];
 }
 
 // static void print_corner_orientation(uint16_t number){
-//     for(uint8_t i = 0; i < 8; i++){
+//     for(size_t i = 0; i < 8; i++){
 //         std::cout << (int) (number & 0b11);
 //         number = number >> 2;
 //     } 
 // }
 
-static bool corners_in_orbits(BasicCube* cube, std::array<std::tuple<Side, Side, Side>, 4> orbit){
+static bool corners_in_orbits(BasicCube3* cube, std::array<std::tuple<Side, Side, Side>, 4> orbit){
 
     Side side1, side2, side3;
 
@@ -1519,25 +1601,25 @@ static bool corners_in_orbits(BasicCube* cube, std::array<std::tuple<Side, Side,
     }    
 
     // check left-down-front corner
-    side1 = (*cube->side_left)[CUBE_SIZE - 1][CUBE_SIZE - 1].side_destination;
-    side2 = (*cube->side_down)[CUBE_SIZE - 1][0].side_destination;
-    side3 = (*cube->side_front)[CUBE_SIZE - 1][0].side_destination;
+    side1 = (*cube->side_left)[CUBE_SIZE_3 - 1][CUBE_SIZE_3 - 1].side_destination;
+    side2 = (*cube->side_down)[CUBE_SIZE_3 - 1][0].side_destination;
+    side3 = (*cube->side_front)[CUBE_SIZE_3 - 1][0].side_destination;
     if(!compare_corner_orbit_tuple(std::make_tuple(side1, side2, side3), orbit)){
         return false;
     }
 
     // check right-down-back corner
-    side1 = (*cube->side_right)[CUBE_SIZE - 1][CUBE_SIZE - 1].side_destination;
-    side2 = (*cube->side_down)[0][CUBE_SIZE - 1].side_destination;
-    side3 = (*cube->side_back)[CUBE_SIZE - 1][CUBE_SIZE - 1].side_destination;
+    side1 = (*cube->side_right)[CUBE_SIZE_3 - 1][CUBE_SIZE_3 - 1].side_destination;
+    side2 = (*cube->side_down)[0][CUBE_SIZE_3 - 1].side_destination;
+    side3 = (*cube->side_back)[CUBE_SIZE_3 - 1][CUBE_SIZE_3 - 1].side_destination;
     if(!compare_corner_orbit_tuple(std::make_tuple(side1, side2, side3), orbit)){
         return false;
     }
 
     // check right-up-front corner
     side1 = (*cube->side_right)[0][0].side_destination;
-    side2 = (*cube->side_up)[CUBE_SIZE - 1][CUBE_SIZE - 1].side_destination;
-    side3 = (*cube->side_front)[0][CUBE_SIZE - 1].side_destination;
+    side2 = (*cube->side_up)[CUBE_SIZE_3 - 1][CUBE_SIZE_3 - 1].side_destination;
+    side3 = (*cube->side_front)[0][CUBE_SIZE_3 - 1].side_destination;
     if(!compare_corner_orbit_tuple(std::make_tuple(side1, side2, side3), orbit)){
         return false;
     }   
@@ -1583,21 +1665,24 @@ static uint16_t edge_permutation_slice_X_to_id(uint16_t permutation_value){
                 id++;
             }
         }
+#ifndef NO_LOG
         if(id != 70){
             std::cout << "wrong number of mapped permutations for phase 3" << std::endl;
             std::cout << id << std::endl;
         }
+#endif
     }
     return permutation_to_id_lookup_table_phase_3[permutation_value >> 4];
 }
 
 void debug(){
-    BasicCube* cube = new BasicCube();
+    BasicCube* big_cube = new BasicCube();
+    BasicCube3* cube = new BasicCube3(big_cube);
 
     // cube->rotate_sequence("0U 0R 0U 0D");
     // cube->rotate_sequence("0L 0R 0F2 0U 0L 0U 0D 0F 0R' 0D2 0F 0B2 0L' 0F 0L 0U2 0F 0L 0F2 0L 0R 0D2 0L2 0U2 0L 0U2 0B2 0L2 0U2 0L");
 
-    Thistlethwaite* thistlethwaite = new Thistlethwaite(cube);
+    Thistlethwaite* thistlethwaite = new Thistlethwaite(big_cube);
 
     std::cout << thistlethwaite->phase3_check(cube) << std::endl;
 
@@ -1607,7 +1692,7 @@ void debug(){
     std::cout << thistlethwaite->edge_slice_permutation_to_id(cube, thistlethwaite->edge_slice_Z) << std::endl;
     // cube->print_cube();
     // cube->print_solution_path();
-
+    delete big_cube;
     delete cube;
     delete thistlethwaite;
 

@@ -1,5 +1,5 @@
 
-basic_cube_files := source/basic_cube_tile.cpp source/basic_cube.cpp source/basic_cube_edge_getters.cpp source/basic_cube_helpers.cpp
+basic_cube_files := source/basic_cube_tile.cpp source/basic_cube.cpp source/basic_cube_edge_getters.cpp source/basic_cube_helpers.cpp source/basic_cube_3.cpp source/basic_cube_3_edge_getters.cpp
 move_files := source/move.cpp
 thistlethwaite_files := source/thistlethwaite.cpp
 main_file := source/main.cpp

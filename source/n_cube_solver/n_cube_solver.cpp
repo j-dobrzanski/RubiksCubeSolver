@@ -59,9 +59,9 @@ static int generate_all_possible_moves(std::vector<Move*>* moves){
     };
     for(Side side : sides){
         for(size_t i = 0; i < CUBE_SIZE / 2; i++){
-            moves->push_back(new Move(side, (uint8_t)i, true, false));
-            moves->push_back(new Move(side, (uint8_t)i, false, false));
-            moves->push_back(new Move(side, (uint8_t)i, true, true));
+            moves->push_back(new Move(side, (size_t)i, true, false));
+            moves->push_back(new Move(side, (size_t)i, false, false));
+            moves->push_back(new Move(side, (size_t)i, true, true));
         }
     }
     return 0;

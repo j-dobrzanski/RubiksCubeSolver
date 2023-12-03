@@ -19,7 +19,7 @@ char side_to_char(Side side);
 class Move {
     public:
         Side side;
-        uint8_t tile_index;
+        size_t tile_index;
         bool clockwise;
         bool is_half_turn;
 
@@ -36,7 +36,7 @@ class Move {
          *  @param[in]  is_half_turn
          */
         Move(Side side, bool is_clockwise, bool is_half_turn);
-        Move(Side side, uint8_t tile_index, bool clockwise, bool is_half_turn);
+        Move(Side side, size_t tile_index, bool clockwise, bool is_half_turn);
         Move(std::string str);
         Move(Move* move);
 };

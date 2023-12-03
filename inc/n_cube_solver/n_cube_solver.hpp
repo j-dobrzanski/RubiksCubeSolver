@@ -37,8 +37,10 @@ class NCubeSolver {
 
         /**
          *  Reducing/solving cube using commutators
+         *
+         *  @param[in]  option  0 for naive solving and 1 for optimized solving
          */
-        int commutator_reduce();
+        int commutator_reduce(int option);
 
 
         /**

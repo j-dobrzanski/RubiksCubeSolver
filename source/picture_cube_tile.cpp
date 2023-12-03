@@ -1,8 +1,8 @@
 #include "../inc/picture_cube_tile.hpp"
 
 
-PictureCubeTile::PictureCubeTile(uint8_t x_destination,
-                    uint8_t y_destination,
+PictureCubeTile::PictureCubeTile(size_t x_destination,
+                    size_t y_destination,
                     Side side_current,
                     Side side_destination,
                     Orientation orientation_current,

@@ -332,7 +332,9 @@ int BasicCubeEdgesSubgroup::naive_solve(){
         }
         // this->print_subgroup();
         if(old == this->no_of_misplaced_edge_parts){
+#ifndef NO_LOG
             std::cout << "no swap found" << std::endl;
+#endif
             return 1;
         }
     }

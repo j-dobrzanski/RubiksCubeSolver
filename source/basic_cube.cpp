@@ -108,7 +108,7 @@ std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* BasicCube::initiali
     return new_side;
 }
 
-int BasicCube::rotate_left(uint8_t tile_index, bool clockwise){
+int BasicCube::rotate_left(size_t tile_index, bool clockwise){
     if(tile_index == 0){
         rotate_side(&(BasicCube::side_left), clockwise);
         this->sides[Side::Left] = this->side_left;
@@ -118,7 +118,7 @@ int BasicCube::rotate_left(uint8_t tile_index, bool clockwise){
         this->sides[Side::Right] = this->side_right;
     }
     // rotate other parts
-    for(uint8_t i = 0; i < CUBE_SIZE; i++){
+    for(size_t i = 0; i < CUBE_SIZE; i++){
         auto up = (*BasicCube::side_up)[i][tile_index];
         auto front= (*BasicCube::side_front)[i][tile_index];
         auto down = (*BasicCube::side_down)[CUBE_SIZE - 1 - i][tile_index];
@@ -142,10 +142,10 @@ int BasicCube::rotate_left(uint8_t tile_index, bool clockwise){
     return 0;
 }
 
-int BasicCube::rotate_right(uint8_t tile_index, bool clockwise){
+int BasicCube::rotate_right(size_t tile_index, bool clockwise){
     return BasicCube::rotate_left(CUBE_SIZE - 1 - tile_index, !clockwise);
 }
-int BasicCube::rotate_front(uint8_t tile_index, bool clockwise){
+int BasicCube::rotate_front(size_t tile_index, bool clockwise){
     if(tile_index == 0){
         rotate_side(&(BasicCube::side_front), clockwise);
         this->sides[Side::Front] = this->side_front;
@@ -155,7 +155,7 @@ int BasicCube::rotate_front(uint8_t tile_index, bool clockwise){
         this->sides[Side::Back] = this->side_back;
     }
     // rotate other parts
-    for(uint8_t i = 0; i < CUBE_SIZE; i++){
+    for(size_t i = 0; i < CUBE_SIZE; i++){
         auto up = (*BasicCube::side_up)[CUBE_SIZE - 1 - tile_index][i];
         auto right = (*BasicCube::side_right)[i][tile_index];
         auto down = (*BasicCube::side_down)[CUBE_SIZE - 1 - tile_index][CUBE_SIZE - 1 - i];
@@ -177,10 +177,10 @@ int BasicCube::rotate_front(uint8_t tile_index, bool clockwise){
     //
     return 0;
 }
-int BasicCube::rotate_back(uint8_t tile_index, bool clockwise){
+int BasicCube::rotate_back(size_t tile_index, bool clockwise){
     return BasicCube::rotate_front(CUBE_SIZE - 1 - tile_index, !clockwise);
 }
-int BasicCube::rotate_up(uint8_t tile_index, bool clockwise){
+int BasicCube::rotate_up(size_t tile_index, bool clockwise){
     if(tile_index == 0){
         rotate_side(&(BasicCube::side_up), clockwise);
         this->sides[Side::Up] = this->side_up;        
@@ -211,7 +211,7 @@ int BasicCube::rotate_up(uint8_t tile_index, bool clockwise){
     //
     return 0;
 }
-int BasicCube::rotate_down(uint8_t tile_index, bool clockwise){
+int BasicCube::rotate_down(size_t tile_index, bool clockwise){
     // return rotate_up(CUBE_SIZE - 1 - tile_index, !clockwise);
     if(tile_index == 0){
         rotate_side(&(BasicCube::side_down), !clockwise);
@@ -277,10 +277,10 @@ int BasicCube::check_solution(){
 void BasicCube::print_cube(){
 #ifndef NO_CUBE_PRINT
     // printing up part
-    for(uint8_t i = 0; i < CUBE_SIZE; i++){
+    for(size_t i = 0; i < CUBE_SIZE; i++){
         std::cout << std::string(3*CUBE_SIZE, ' ');
         std::cout << "  ";
-        for(uint8_t j = 0; j < CUBE_SIZE; j++){
+        for(size_t j = 0; j < CUBE_SIZE; j++){
             std::cout << '[' << side_to_char((*BasicCube::side_up)[i][j].side_destination) << ']';
         }
         std::cout <<  std::endl;
@@ -288,24 +288,24 @@ void BasicCube::print_cube(){
     std::cout << std::endl;
     // printing left/ front / right / back part
 
-    for(uint8_t i = 0; i < CUBE_SIZE; i++){
+    for(size_t i = 0; i < CUBE_SIZE; i++){
         auto left = (*BasicCube::side_left)[i];
         auto front = (*BasicCube::side_front)[i];
         auto right = (*BasicCube::side_right)[i];
         auto back = (*BasicCube::side_back)[i];
-        for(uint8_t j = 0; j < CUBE_SIZE; j++){
+        for(size_t j = 0; j < CUBE_SIZE; j++){
             std::cout << '[' << side_to_char(left[j].side_destination) << ']';
         }
         std::cout << "  ";
-        for(uint8_t j = 0; j < CUBE_SIZE; j++){
+        for(size_t j = 0; j < CUBE_SIZE; j++){
             std::cout << '[' << side_to_char(front[j].side_destination) << ']';
         }
         std::cout << "  ";
-        for(uint8_t j = 0; j < CUBE_SIZE; j++){
+        for(size_t j = 0; j < CUBE_SIZE; j++){
             std::cout << '[' << side_to_char(right[j].side_destination) << ']';
         }
         std::cout << "  ";
-        for(uint8_t j = 0; j < CUBE_SIZE; j++){
+        for(size_t j = 0; j < CUBE_SIZE; j++){
             std::cout << '[' << side_to_char(back[j].side_destination) << ']';
         }
         std::cout << std::endl;;
@@ -313,10 +313,10 @@ void BasicCube::print_cube(){
     std::cout << std::endl;
 
     // printing down part
-    for(uint8_t i = 0; i < CUBE_SIZE; i++){
+    for(size_t i = 0; i < CUBE_SIZE; i++){
         std::cout << std::string(3*CUBE_SIZE, ' ');
         std::cout << "  ";
-        for(uint8_t j = 0; j < CUBE_SIZE; j++){
+        for(size_t j = 0; j < CUBE_SIZE; j++){
             std::cout << '[' << side_to_char((*BasicCube::side_down)[CUBE_SIZE - 1- i][j].side_destination) << ']';
         }
         std::cout <<  std::endl;
@@ -538,6 +538,42 @@ std::pair<Side, Side> normalize_edge(std::pair<Side, Side> edge){
 
 }
 
+std::tuple<Side, Side, Side> normalize_corner(std::tuple<Side, Side, Side> corner){
+    Side side0, side1, side2;
+    if(std::get<1>(corner) == Side::Left || std::get<1>(corner) == Side::Right){
+        side0 = std::get<1>(corner);
+    }
+    else if(std::get<2>(corner) == Side::Left || std::get<2>(corner) == Side::Right){
+        side0 = std::get<2>(corner);
+    }
+    else{
+        side0 = std::get<0>(corner);
+    }
+
+    if(std::get<0>(corner) == Side::Front || std::get<0>(corner) == Side::Back){
+        side1 = std::get<0>(corner);
+    }
+    else if(std::get<2>(corner) == Side::Front || std::get<2>(corner) == Side::Back){
+        side1 = std::get<2>(corner);
+    }
+    else{
+        side1 = std::get<1>(corner);
+    }
+
+    if(std::get<0>(corner) == Side::Up || std::get<0>(corner) == Side::Down){
+        side2 = std::get<0>(corner);
+    }
+    else if(std::get<1>(corner) == Side::Up || std::get<1>(corner) == Side::Down){
+        side2 = std::get<1>(corner);
+    }
+    else{
+        side2 = std::get<2>(corner);
+    }
+
+
+    return std::make_tuple(side0, side1, side2);
+}
+
 static int check_solution_side(Side current_side_enum, std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* current_side){
     for(size_t i = 0; i < CUBE_SIZE; i++){
         for(size_t j = 0; j < CUBE_SIZE; j++){
@@ -562,7 +598,7 @@ static int rotate_side(std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZ
     }
     else{
         for(int i = CUBE_SIZE - 1; i >= 0; i--){
-            for(uint8_t j = 0; j < CUBE_SIZE; j++){
+            for(size_t j = 0; j < CUBE_SIZE; j++){
                 (*rotated)[CUBE_SIZE - 1 - i][j].side_destination = (*side)[j][i].side_destination;
             }
         }        
@@ -579,8 +615,8 @@ static void delete_side(std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SI
 }
 
 static int compare_side(std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* side_a, std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* side_b){
-    for(uint8_t i = 0; i < CUBE_SIZE; i++){
-        for(uint8_t j = 0; j < CUBE_SIZE; j++){
+    for(size_t i = 0; i < CUBE_SIZE; i++){
+        for(size_t j = 0; j < CUBE_SIZE; j++){
             if((*side_a)[i][j].side_destination != (*side_b)[i][j].side_destination){
                 return 1;
             }
@@ -591,8 +627,8 @@ static int compare_side(std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SI
 
 static std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* copy_side(std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* side){
     std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* new_side = new std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>();
-    for(uint8_t i = 0; i < CUBE_SIZE; i++){
-        for(uint8_t j = 0; j < CUBE_SIZE; j++){
+    for(size_t i = 0; i < CUBE_SIZE; i++){
+        for(size_t j = 0; j < CUBE_SIZE; j++){
             (*new_side)[i][j].side_destination = (*side)[i][j].side_destination;
         }
     }

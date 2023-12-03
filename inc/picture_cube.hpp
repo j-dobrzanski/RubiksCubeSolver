@@ -9,7 +9,7 @@
 
 class PictureCube : Cube{
     public:
-        uint8_t size;
+        size_t size;
         CubeType type;
         std::vector<std::vector<PictureCubeTile*>*>* side_front;
         std::vector<std::vector<PictureCubeTile*>*>* side_back;
@@ -18,8 +18,8 @@ class PictureCube : Cube{
         std::vector<std::vector<PictureCubeTile*>*>* side_top;
         std::vector<std::vector<PictureCubeTile*>*>* side_bottom;
 
-        PictureCube(uint8_t size, CubeType type);
-        int rotate(Axis axis, uint8_t tile_index);
+        PictureCube(size_t size, CubeType type);
+        int rotate(Axis axis, size_t tile_index);
         int check_solution();
 
     private:

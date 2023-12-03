@@ -2,6 +2,7 @@
 #define THISTLETHWAITE_HPP
 
 #include "basic_cube.hpp"
+#include "basic_cube_3.hpp"
 #include "move.hpp"
 #include <queue>
 #include <map>
@@ -23,20 +24,23 @@ void debug();
 
 class Thistlethwaite {
     public:
-        uint16_t compare_cubes_heuristics(BasicCube* cube1, BasicCube* cube2);
+        uint16_t compare_cubes_heuristics(BasicCube3* cube1, BasicCube3* cube2);
 
-        BasicCube* start_cube;
-        BasicCube* solved_cube;
-        uint8_t phase1_move_count;
+        BasicCube3* start_cube;
+        BasicCube3* solved_cube;
+        size_t phase1_move_count;
         // auto phase1_time;
-        uint8_t phase2_move_count;
+        size_t phase2_move_count;
         // auto phase2_time
-        uint8_t phase3_move_count;
+        size_t phase3_move_count;
         // auto phase3_time
-        uint8_t phase4_move_count;
+        size_t phase4_move_count;
         // auto phase3_time
 
-        std::priority_queue<BasicCube*, std::vector<BasicCube*>, Compare_cubes>* current_cubes;
+        std::vector<Move*>* previous_moves;
+        size_t previous_moves_count;
+
+        std::priority_queue<BasicCube3*, std::vector<BasicCube3*>, Compare_cubes_3>* current_cubes;
         std::vector<Move*> moves_p1;
         std::vector<Move*> moves_p2;
         std::vector<Move*> moves_p3;
@@ -91,21 +95,21 @@ class Thistlethwaite {
 
         
         int bfs(std::vector<Move*>* allowed_moves,
-                uint16_t (Thistlethwaite::*check_function)(BasicCube*),
-                uint16_t (Thistlethwaite::*get_table_offset)(BasicCube*),
+                uint16_t (Thistlethwaite::*check_function)(BasicCube3*),
+                uint16_t (Thistlethwaite::*get_table_offset)(BasicCube3*),
                 uint16_t max_depth);
         
         int clear_current_cubes();
 
-        uint16_t edge_orientation(BasicCube* cube);
+        uint16_t edge_orientation(BasicCube3* cube);
 
-        uint16_t corner_orientations(BasicCube* cube);
-        uint16_t edge_slice_permutation(BasicCube* cube, std::array<std::pair<Side, Side>, 4>* edge_slice);
+        uint16_t corner_orientations(BasicCube3* cube);
+        uint16_t edge_slice_permutation(BasicCube3* cube, std::array<std::pair<Side, Side>, 4>* edge_slice);
 
-        uint32_t corner_permutation(BasicCube* cube);
+        uint32_t corner_permutation(BasicCube3* cube);
         uint16_t get_corner_destination(std::tuple<Side, Side, Side> corner_tuple);
 
-        uint16_t edge_slice_permutation_to_id(BasicCube* cube, std::array<std::pair<Side, Side>, 4> edge_slice);
+        uint16_t edge_slice_permutation_to_id(BasicCube3* cube, std::array<std::pair<Side, Side>, 4> edge_slice);
 
         int initialize_phase_3_initial_cubes();
 
@@ -124,26 +128,26 @@ class Thistlethwaite {
         int read_table_phase_3();
         int read_table_phase_4();
 
-        uint16_t get_table_1_offset(BasicCube* cube);
-        uint16_t get_table_2_offset(BasicCube* cube);
-        uint16_t get_table_3_offset(BasicCube* cube);
-        uint16_t get_table_4_offset(BasicCube* cube);
+        uint16_t get_table_1_offset(BasicCube3* cube);
+        uint16_t get_table_2_offset(BasicCube3* cube);
+        uint16_t get_table_3_offset(BasicCube3* cube);
+        uint16_t get_table_4_offset(BasicCube3* cube);
 
-        uint8_t phase1_table[2048] = {0};
+        size_t phase1_table[2048] = {0};
 
-        uint8_t phase2_table[495][2187] = {0};
+        size_t phase2_table[495][2187] = {0};
 
-        BasicCube* phase_3_table_initial_cubes[96] = {0};
-        uint8_t phase3_table[40320][70] = {0};
+        BasicCube3* phase_3_table_initial_cubes[96] = {0};
+        size_t phase3_table[40320][70] = {0};
 
-        uint8_t phase4_table[96][24][24][24] = {0};
+        size_t phase4_table[96][24][24][24] = {0};
 
         uint32_t corner_permutation_to_id_phase4(uint32_t number);
 
-        uint16_t phase1_check(BasicCube* cube);
-        uint16_t phase2_check(BasicCube* cube);
-        uint16_t phase3_check(BasicCube* cube);
-        uint16_t phase4_check(BasicCube* cube);
+        uint16_t phase1_check(BasicCube3* cube);
+        uint16_t phase2_check(BasicCube3* cube);
+        uint16_t phase3_check(BasicCube3* cube);
+        uint16_t phase4_check(BasicCube3* cube);
 };
 
 #endif

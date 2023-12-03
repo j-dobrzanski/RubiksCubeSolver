@@ -6,12 +6,12 @@
 
 class PictureCubeTile : CubeTile {
     public:
-        uint8_t x_destination, y_destination;
+        size_t x_destination, y_destination;
         Side side_current, side_destination;
         Orientation orientation_current, orientation_destination;
 
-        PictureCubeTile(uint8_t x_destination,
-                    uint8_t y_destination,
+        PictureCubeTile(size_t x_destination,
+                    size_t y_destination,
                     Side side_current,
                     Side side_destination,
                     Orientation orientation_current,

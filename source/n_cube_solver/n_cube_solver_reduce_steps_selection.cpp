@@ -6,7 +6,7 @@
 
 static size_t count_tiles_on_side_center(std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* cube_side, Side side);
 static std::map<std::pair<Side, Side>, size_t> count_tiles_on_edge(std::array<std::pair<Side, Side>, EDGE_LENGTH> edge);
-static std::pair<uint8_t, uint8_t> all_edge_parts_different(std::array<std::pair<Side, Side>, 4> edge_set);
+static std::pair<size_t, size_t> all_edge_parts_different(std::array<std::pair<Side, Side>, 4> edge_set);
 static std::pair<Side, Side> extract_best_edge_part_from_map(std::map<std::pair<Side, Side>, size_t>* edge_map, size_t* edge_value);
 static std::array<std::pair<Side, Side>, 4> choose_edges_from_maps(std::map<std::pair<Side, Side>, size_t> maps[]);
 
@@ -199,7 +199,7 @@ static std::map<std::pair<Side, Side>, size_t> count_tiles_on_edge(std::array<st
     return count_map;
 }
 
-static std::pair<uint8_t, uint8_t> all_edge_parts_different(std::array<std::pair<Side, Side>, 4> edge_set){
+static std::pair<size_t, size_t> all_edge_parts_different(std::array<std::pair<Side, Side>, 4> edge_set){
     for(size_t i = 0; i < 4; i++){
         for(size_t j = i + 1; j < 4; j++){
             if(compare_edge(edge_set[i], edge_set[j])){
@@ -234,8 +234,8 @@ static std::array<std::pair<Side, Side>, 4> choose_edges_from_maps(std::map<std:
         extract_best_edge_part_from_map(&(maps[3]), &(values[3]))
     };
     
-    std::pair<uint8_t, uint8_t> collisions = all_edge_parts_different(chosen_edges);
-    while(collisions != std::make_pair((uint8_t)0, (uint8_t)0)){
+    std::pair<size_t, size_t> collisions = all_edge_parts_different(chosen_edges);
+    while(collisions != std::make_pair((size_t)0, (size_t)0)){
         if(values[collisions.first] > values[collisions.second]){
             chosen_edges[collisions.second] = extract_best_edge_part_from_map(&(maps[collisions.second]), &(values[collisions.second]));
         }

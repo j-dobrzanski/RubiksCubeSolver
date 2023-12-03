@@ -83,7 +83,7 @@ std::string Move::to_string(){
     return str;
 }
 
-Move::Move(Side side, uint8_t tile_index, bool clockwise, bool is_half_turn){
+Move::Move(Side side, size_t tile_index, bool clockwise, bool is_half_turn){
     Move::side = side;
     Move::tile_index = tile_index;
     Move::is_half_turn = is_half_turn;

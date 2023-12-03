@@ -14,7 +14,7 @@ enum class CubeType {
 class Cube {
     public:
 
-        uint8_t size;
+        size_t size;
         std::vector<std::vector<CubeTile*>*>* side_front;
         std::vector<std::vector<CubeTile*>*>* side_back;
         std::vector<std::vector<CubeTile*>*>* side_left;
