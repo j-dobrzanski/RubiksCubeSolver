@@ -45,6 +45,7 @@ std::map<std::pair<Side, Side>, std::pair<Side, Side>> commutator_map = {
 };
 
 int NCubeSolver::commutator_reduce(int option){
+    (void) option;
     if(CUBE_SIZE == 3){
         this->reduced_cube = this->start_cube;
         return 0;

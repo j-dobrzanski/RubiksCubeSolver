@@ -7,5 +7,18 @@ n_cube_solver_files := source/n_cube_solver/n_cube_solver.cpp source/n_cube_solv
 basic_cube_centres_subgroups_files := source/basic_cube_centres_subgroups/basic_cube_centres_subgroups.cpp
 basic_cube_edges_subgroups_files := source/basic_cube_edges_subgroups/basic_cube_edges_subgroups.cpp
 
+CUBE_SIZE = 3
+NO_LOG = 1
+CUBE_PRINT = 0
+PROGRAM_NAME = main
+
 make:
-	g++ $(basic_cube_files) $(move_files) $(thistlethwaite_files) $(n_cube_solver_files) $(basic_cube_centres_subgroups_files) $(basic_cube_edges_subgroups_files) $(main_file) -o main -ggdb3 -Wall -Wextra -O3
+	python generate_config.py $(CUBE_SIZE) $(CUBE_PRINT) $(NO_LOG)
+	g++ $(basic_cube_files) $(move_files) $(thistlethwaite_files) $(n_cube_solver_files) $(basic_cube_centres_subgroups_files) $(basic_cube_edges_subgroups_files) $(main_file) -o $(PROGRAM_NAME) -ggdb3 -Wall -Wextra -Werror -O3
+
+help:
+	@echo "Dostępne opcje kompilacji:"
+	@echo "	CUBE_SIZE=int		-	rozmiar kostek w programie - def 3"
+	@echo "	NO_LOG={0,1}		- 	opcja wyłącznia logów - def 1"
+	@echo "	CUBE_PRINT={0,1}	-	opcja włącznia możliwości wyświetlania kostek - def 0"
+	@echo "	PROGRAM_NAME=str	-	nazwa programu wynikowego - def main"
