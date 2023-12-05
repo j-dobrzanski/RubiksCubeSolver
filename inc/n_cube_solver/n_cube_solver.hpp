@@ -38,9 +38,10 @@ class NCubeSolver {
         /**
          *  Reducing/solving cube using commutators
          *
-         *  @param[in]  option  0 for naive solving and 1 for optimized solving
+         *  @param[in]  commutator_option   0 for naive solving and 1 for optimized solving in groups
+         *  @param[in]  do_preprocessing    true if cube should be preprocess about minimal number of misplaced tiles
          */
-        int commutator_reduce(int option);
+        int commutator_reduce(int commutator_option, bool do_preprocessing);
 
 
         /**

@@ -1,15 +1,22 @@
 #include "../../inc/n_cube_solver/n_cube_solver.hpp"
 #include "../../inc/basic_cube_subgroups/basic_cube_centres_subgroups.hpp"
 #include "../../inc/basic_cube_subgroups/basic_cube_edges_subgroups.hpp"
+#include <array>
+#include <cstddef>
 #include <iostream>
 #include <algorithm>
 #include <cstdlib>
+#include <stack>
 #include <tuple>
 #include <utility>
 
 static int get_position_of_edge_sides(std::pair<Side, Side> edge, size_t index, size_t* row_index_side1, size_t* column_index_side1, size_t* row_index_side2, size_t* column_index_side2);
 
 static int fix_corner_parity(BasicCube* cube);
+
+static BasicCube* cube_preprocessing(BasicCube* start_cube);
+static size_t count_misplaced_tiles(BasicCube* cube);
+static size_t count_misplaced_tiles_side(std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* side, Side destination);
 
 
 static std::vector<Move*> generate_edge_pair_flip_commutator(std::pair<Side, Side> edge, size_t index);
@@ -44,12 +51,20 @@ std::map<std::pair<Side, Side>, std::pair<Side, Side>> commutator_map = {
     {std::make_pair(Side::Back, Side::Down), std::make_pair(Side::Left, Side::Right)},
 };
 
-int NCubeSolver::commutator_reduce(int option){
-    (void) option;
+int NCubeSolver::commutator_reduce(int commutator_option, bool do_preprocessing){
+    (void) commutator_option;
     if(CUBE_SIZE == 3){
         this->reduced_cube = this->start_cube;
         return 0;
     }
+
+    if(do_preprocessing){
+        std::cout << count_misplaced_tiles(this->start_cube) << std::endl;
+        this->start_cube = cube_preprocessing(this->start_cube);
+        std::cout << count_misplaced_tiles(this->start_cube) << std::endl;
+        std::cout << this->start_cube->solution_length << std::endl;
+    }
+
     for(size_t i = 1; i < (CUBE_SIZE + 1) / 2; i++){
         for(size_t j = 1; j < CUBE_SIZE / 2; j++){
 #ifndef NO_LOG
@@ -569,4 +584,110 @@ static int fix_corner_parity(BasicCube* cube){
     // }
 
     return 0;
+}
+
+static BasicCube* cube_preprocessing(BasicCube* start_cube){
+    // BasicCube* best_cube = new BasicCube(start_cube);
+    // size_t best_value = count_misplaced_tiles(start_cube);
+    // best_cube->previous_misplaced_tiles_preprocessing = best_value + 1;
+    // best_cube->misplaced_tiles = best_value;
+    // std::stack<BasicCube*> current_cubes = std::stack<BasicCube*>();
+    // current_cubes.push(new BasicCube(best_cube));
+    // size_t max_depth = 0;
+    // while(!current_cubes.empty() && best_value > 0){
+    //     BasicCube* cube = current_cubes.top();
+    //     if(cube->solution_length > max_depth){
+    //         max_depth = cube->solution_length;
+    //         std::cout << "Max depth: " << max_depth <<", best value: " << best_value << std::endl; 
+    //     }
+    //     current_cubes.pop();
+
+    //     for(Side side : cube_sides){
+    //         for(size_t index = 0; index < CUBE_SIZE / 2; index++){
+    //             for(size_t rotate_case = 0; rotate_case < 3; rotate_case++){
+    //                 Move* move = new Move(side, index, rotate_case!=0, rotate_case==2);
+    //                 if(cube->solution_length > 0 && !check_move_sanity(cube->solution_path->back(),  move)){
+    //                     continue;
+    //                 }
+    //                 BasicCube* new_cube = new BasicCube(cube);
+    //                 new_cube->rotate(move);
+    //                 new_cube->misplaced_tiles = count_misplaced_tiles(new_cube);
+    //                 // std::cout << "\t" << new_cube->misplaced_tiles << std::endl;
+    //                 if(new_cube->misplaced_tiles >= cube->misplaced_tiles){
+    //                     // std::cout << "\t\t deleted: " << new_cube->misplaced_tiles << " > " << cube->misplaced_tiles << std::endl;
+    //                     delete new_cube;
+    //                     continue;
+    //                 }
+    //                 if(new_cube->misplaced_tiles < best_value){
+    //                     delete best_cube;
+    //                     best_cube = new BasicCube(new_cube);
+    //                     best_value = new_cube->misplaced_tiles;
+    //                     // std::cout << "\t\tNew best value" << std::endl;
+    //                     best_cube->misplaced_tiles = new_cube->misplaced_tiles;
+    //                 }
+    //                 current_cubes.push(new_cube);
+    //             }
+    //         }
+    //     }
+    //     delete cube;
+    // }
+    // return best_cube;
+
+    BasicCube* better_cube = {0};
+    size_t current_best = -1;
+    size_t previous_misplaced_tiles = count_misplaced_tiles(start_cube);
+    start_cube->misplaced_tiles = previous_misplaced_tiles;
+    previous_misplaced_tiles++;
+    while(previous_misplaced_tiles > start_cube->misplaced_tiles){
+        previous_misplaced_tiles = start_cube->misplaced_tiles;
+        for(Side side : cube_sides){
+            for(size_t index = 0; index < CUBE_SIZE / 2; index++){
+                for(size_t rotate_case = 0; rotate_case < 3; rotate_case++){
+                    Move* move = new Move(side, index, rotate_case!=0, rotate_case==2);
+                    if(start_cube->solution_length > 0 && !check_move_sanity(start_cube->solution_path->back(),  move)){
+                        continue;
+                    }
+                    BasicCube* new_cube = new BasicCube(start_cube);
+                    new_cube->rotate(move);
+                    new_cube->misplaced_tiles = count_misplaced_tiles(new_cube);
+                    if(new_cube->misplaced_tiles < current_best){
+                        current_best = new_cube->misplaced_tiles;
+                        if(better_cube){
+                            delete better_cube;
+                        }
+                        better_cube = new BasicCube(new_cube);
+                    }
+                    delete new_cube;
+                }
+            }
+        }
+        // std::cout << current_best << std::endl;
+        delete start_cube;
+        start_cube = new BasicCube(better_cube);
+    }
+
+    return start_cube;
+}
+
+static size_t count_misplaced_tiles(BasicCube* cube){
+    size_t counter = 0;
+    counter += count_misplaced_tiles_side(cube->side_left, Side::Left);
+    counter += count_misplaced_tiles_side(cube->side_right, Side::Right);
+    counter += count_misplaced_tiles_side(cube->side_front, Side::Front);
+    counter += count_misplaced_tiles_side(cube->side_back, Side::Back);
+    counter += count_misplaced_tiles_side(cube->side_up, Side::Up);
+    counter += count_misplaced_tiles_side(cube->side_down, Side::Down);
+    return counter;
+}
+
+static size_t count_misplaced_tiles_side(std::array<std::array<BasicCubeTile, CUBE_SIZE>, CUBE_SIZE>* side, Side destination){
+    size_t counter = 0;
+    for(auto row : *side){
+        for(auto elem : row){
+            if(!(elem.side_destination == destination)){
+                counter++;
+            }
+        }
+    }
+    return counter;
 }

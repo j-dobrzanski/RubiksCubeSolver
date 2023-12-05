@@ -18,6 +18,7 @@ int main(int argc, char** argv){
     bool only_is_solved = false;
     bool show_solution = true;
     int commutator_strategy = 0;
+    bool do_preprocessing = false;
     // bool show_stats = true;
 
     if(argc == 1){
@@ -51,9 +52,14 @@ int main(int argc, char** argv){
             std::cout << "Podaj sekwencję ruchów mieszającą kostkę: " << std::endl;
             std::cin >> move_sequence;            
         }
+        std::cout << "Wybierz strategię rozwiązywania w grupach: (1 dla optymalnej)" << std::endl;
+        std::cin >> commutator_strategy;
+        std::cout << "Czy zastosować preprocessing? " << std::endl;
+        std::cin >> do_preprocessing;
+            
     }
     else{
-        if(argc < 4){
+        if(argc < 5){
             std::cout << "Zła ilość opcji" << std::endl;
             return 0;
         }
@@ -61,6 +67,7 @@ int main(int argc, char** argv){
         length = std::stoi(argv[1]);
         only_is_solved = std::stoi(argv[2]);
         commutator_strategy = std::stoi(argv[3]);
+        do_preprocessing = std::stoi(argv[4]);
         // show_stats = std::stoi(argv[3]);
         move_sequence = random_move_sequence(length);
 
@@ -85,7 +92,7 @@ int main(int argc, char** argv){
     auto n_cube_solver = new NCubeSolver(cube);
 
     auto reducing_start = std::chrono::high_resolution_clock::now();
-    int result = n_cube_solver->commutator_reduce(commutator_strategy);
+    int result = n_cube_solver->commutator_reduce(commutator_strategy, do_preprocessing);
     auto reducing_end = std::chrono::high_resolution_clock::now();
 
 

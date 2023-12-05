@@ -7,7 +7,7 @@
 
 #ifndef CUBE_SIZE
 
-#define CUBE_SIZE 10
+#define CUBE_SIZE 40
 
 #endif
 

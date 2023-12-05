@@ -1,4 +1,5 @@
 #include "../inc/basic_cube.hpp"
+#include <array>
 #include <cstdint>
 #include <iostream>
 #include <algorithm>
@@ -53,6 +54,15 @@ std::array<std::pair<Side, Side>, 24> unordered_edge_set = {
     std::make_pair(Side::Up, Side::Back)
 };
 
+std::array<Side, 6> cube_sides = {
+    Side::Left,
+    Side::Right,
+    Side::Front,
+    Side::Back,
+    Side::Up,
+    Side::Down
+};
+
 BasicCube::BasicCube(){
     BasicCube::side_front = initialize_side(Side::Front);
     BasicCube::side_back = initialize_side(Side::Back);
@@ -63,6 +73,8 @@ BasicCube::BasicCube(){
     BasicCube::solution_path = new std::vector<Move*>;
     this->solution_length = 0;
     this->temp_length = 0;
+    this->previous_misplaced_tiles_preprocessing = 0;
+    this->misplaced_tiles = 0;
 
     this->sides = {
         {Side::Front, this->side_front},
@@ -87,6 +99,8 @@ BasicCube::BasicCube(BasicCube* cube){
     this->side_down = copy_side(cube->side_down);
     this->solution_length = cube->solution_length;
     this->temp_length = cube->temp_length;
+    this->previous_misplaced_tiles_preprocessing = 0;
+    this->misplaced_tiles = cube->misplaced_tiles;
 
     this->sides = {
         {Side::Front, this->side_front},

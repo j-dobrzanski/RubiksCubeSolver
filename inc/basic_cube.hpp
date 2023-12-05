@@ -3,6 +3,7 @@
 
 #include "cube.hpp"
 #include "basic_cube_tile.hpp"
+#include <cstddef>
 #include <cstdint>
 #include <map>
 #include <utility>
@@ -26,6 +27,11 @@ extern std::array<std::pair<Side, Side>, 12> ordered_edge_set;
  *  All edges of cube in no specific order
  */
 extern std::array<std::pair<Side, Side>, 24> unordered_edge_set;
+
+/**
+ *  All sides in order
+ */
+extern std::array<Side, 6> cube_sides;
 
 /**
  *  Helper function to compare unordered edges
@@ -97,6 +103,8 @@ class BasicCube : Cube{
         uint64_t solution_length;
         uint16_t temp_length;
         double temp_length_plus_heuristic;
+        size_t previous_misplaced_tiles_preprocessing;
+        size_t misplaced_tiles;
 
         BasicCube();
         BasicCube(BasicCube* cube);
